@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using SmartTicket.Application.Interface;
+using SmartTicket.Application.Services.Clasificacion;
 using SmartTicket.Infrastructure.Persistence;
 using SmartTicket.Infrastructure.Repositories;
 using SmartTicket.Infrastructure.Security;
@@ -18,6 +18,13 @@ public static class DependencyInjection
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IClienteRepository, ClienteRepository>();
+        services.AddScoped<ISolicitudRepository, SolicitudRepository>();
+        services.AddScoped<IEstadoRepository, EstadoRepository>();
+        services.AddScoped<ICategoriaRepository, CategoriaRepository>();
+        services.AddScoped<IAreaRepository, AreaRepository>();
+        services.AddScoped<IPrioridadRepository, PrioridadRepository>();
+        services.AddScoped<ISubcategoriaRepository, SubcategoriaRepository>();
+        services.AddSingleton<IMotorClasificacionTexto, MotorClasificacionTexto>();
 
         return services;
     }
