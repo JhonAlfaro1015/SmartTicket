@@ -18,8 +18,4 @@
     <ProjectReference Include="..\SmartTicket.Infrastructure\SmartTicket.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
 </Project>
