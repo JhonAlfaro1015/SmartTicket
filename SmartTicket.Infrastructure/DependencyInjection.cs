@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SmartTicket.Application.Interface;
 using SmartTicket.Application.Services.Clasificacion;
+using SmartTicket.Application.Services.Clasificacion.ClasificacionML;
+using SmartTicket.Infrastructure.MachineLearning;
 using SmartTicket.Infrastructure.Persistence;
 using SmartTicket.Infrastructure.Repositories;
 using SmartTicket.Infrastructure.Security;
@@ -26,6 +28,12 @@ public static class DependencyInjection
         services.AddScoped<ISubcategoriaRepository, SubcategoriaRepository>();
         services.AddSingleton<IMotorClasificacionTexto, MotorClasificacionTexto>();
         services.AddScoped<IDashboardRepository, DashboardRepository>();
+
+        var rutaModelo = Path.Combine(AppContext.BaseDirectory, "MachineLearning", "modelo_categoria.zip");
+        Directory.CreateDirectory(Path.GetDirectoryName(rutaModelo)!);
+
+        services.AddSingleton<IEntrenadorModeloML>(_ => new EntrenadorModeloML(rutaModelo));
+        services.AddSingleton<IMotorClasificacionML>(_ => new MotorClasificacionML(rutaModelo));
 
         return services;
     }
