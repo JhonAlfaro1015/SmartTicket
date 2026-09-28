@@ -32,7 +32,7 @@ public class RegisterCommandHandler(IUsuarioRepository usuarioRepository,IRolRep
 
         nuevoUsuario.UsuarioId = await _usuarioRepository.CreateAsync(nuevoUsuario);
 
-        var (token, expiraEn) = _jwtTokenGenerator.GenerateToken(nuevoUsuario, rol.Nombre);
+        var (token, expiraEn) = _jwtTokenGenerator.GenerateToken(nuevoUsuario.UsuarioId, nuevoUsuario.Email, nuevoUsuario.Nombre, rol.Nombre);
 
         return new AuthResponseDto
         {

@@ -2,6 +2,5 @@
 
 public class CreateSolicitudDto
 {
-    public int ClienteId { get; set; }
     public string TextoOriginal { get; set; } = null!;
 }

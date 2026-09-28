@@ -73,4 +73,12 @@ public class SolicitudRepository(DapperContext context) : ISolicitudRepository
 
         transaction.Commit();
     }
+
+    public async Task AsignarAsync(long solicitudId, int usuarioAsignadoId)
+    {
+        const string sql = @"UPDATE Solicitudes SET UsuarioAsignadoId = @UsuarioAsignadoId WHERE SolicitudId = @SolicitudId";
+
+        using var connection = _context.CreateConnection();
+        await connection.ExecuteAsync(sql, new { UsuarioAsignadoId = usuarioAsignadoId, SolicitudId = solicitudId });
+    }
 }

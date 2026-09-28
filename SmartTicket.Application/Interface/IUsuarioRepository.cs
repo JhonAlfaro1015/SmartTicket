@@ -6,5 +6,6 @@ namespace SmartTicket.Application.Interface
     {
         Task<Tbl_Usuario?> GetByEmailAsync(string email);
         Task<int> CreateAsync(Tbl_Usuario usuario);
+        Task<Tbl_Usuario?> GetByIdAsync(int usuarioId);
     }
 }

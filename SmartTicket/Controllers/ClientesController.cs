@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SmartTicket.Application.Dtos.Clientes;
 using SmartTicket.Application.Features.Clientes.Create;
@@ -9,6 +10,7 @@ namespace SmartTicket.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class ClientesController(IMediator mediator, IMapper mapper) : ControllerBase
 {
     private readonly IMediator _mediator = mediator;

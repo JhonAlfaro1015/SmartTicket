@@ -24,7 +24,7 @@ public class LoginCommandHandler(IUsuarioRepository usuarioRepository, IRolRepos
         var rol = await _rolRepository.GetByIdAsync(usuario.RolId);
         var rolNombre = rol?.Nombre ?? string.Empty;
 
-        var (token, expiraEn) = _jwtTokenGenerator.GenerateToken(usuario, rolNombre);
+        var (token, expiraEn) = _jwtTokenGenerator.GenerateToken(usuario.UsuarioId, usuario.Email, usuario.Nombre, rolNombre);
 
         return new AuthResponseDto
         {

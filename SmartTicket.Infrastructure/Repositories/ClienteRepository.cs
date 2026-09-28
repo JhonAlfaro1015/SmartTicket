@@ -11,7 +11,7 @@ public class ClienteRepository(DapperContext context) : IClienteRepository
 
     public async Task<int> CreateAsync(Tbl_Cliente cliente)
     {
-        const string sql = @"INSERT INTO Clientes (Nombre, Email, Telefono, FechaCreacion) VALUES (@Nombre, @Email, @Telefono, @FechaCreacion); SELECT CAST(SCOPE_IDENTITY() AS INT);";
+        const string sql = @"INSERT INTO Clientes (Nombre, Email, Telefono, PasswordHash, FechaCreacion) VALUES (@Nombre, @Email, @Telefono, @PasswordHash, @FechaCreacion); SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
         using var connection = _context.CreateConnection();
         return await connection.ExecuteScalarAsync<int>(sql, cliente);
@@ -19,9 +19,17 @@ public class ClienteRepository(DapperContext context) : IClienteRepository
 
     public async Task<Tbl_Cliente?> GetByIdAsync(int clienteId)
     {
-        const string sql = @"SELECT ClienteId, Nombre, Email, Telefono, FechaCreacion FROM Clientes WHERE ClienteId = @ClienteId";
+        const string sql = @"SELECT ClienteId, Nombre, Email, Telefono, PasswordHash, FechaCreacion FROM Clientes WHERE ClienteId = @ClienteId";
 
         using var connection = _context.CreateConnection();
         return await connection.QueryFirstOrDefaultAsync<Tbl_Cliente>(sql, new { ClienteId = clienteId });
+    }
+
+    public async Task<Tbl_Cliente?> GetByEmailAsync(string email)
+    {
+        const string sql = @"SELECT ClienteId, Nombre, Email, Telefono, PasswordHash, FechaCreacion FROM Clientes WHERE Email = @Email";
+
+        using var connection = _context.CreateConnection();
+        return await connection.QueryFirstOrDefaultAsync<Tbl_Cliente>(sql, new { Email = email });
     }
 }

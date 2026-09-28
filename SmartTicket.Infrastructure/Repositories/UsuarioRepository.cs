@@ -5,14 +5,9 @@ using SmartTicket.Infrastructure.Persistence;
 
 namespace SmartTicket.Infrastructure.Repositories;
 
-public class UsuarioRepository : IUsuarioRepository
+public class UsuarioRepository(DapperContext context) : IUsuarioRepository
 {
-    private readonly DapperContext _context;
-
-    public UsuarioRepository(DapperContext context)
-    {
-        _context = context;
-    }
+    private readonly DapperContext _context = context;
 
     public async Task<Tbl_Usuario?> GetByEmailAsync(string email)
     {
@@ -20,6 +15,14 @@ public class UsuarioRepository : IUsuarioRepository
 
         using var connection = _context.CreateConnection();
         return await connection.QueryFirstOrDefaultAsync<Tbl_Usuario>(sql, new { Email = email });
+    }
+
+    public async Task<Tbl_Usuario?> GetByIdAsync(int usuarioId)
+    {
+        const string sql = @"SELECT UsuarioId, RolId, Nombre, Email, PasswordHash, Activo, FechaCreacion FROM Usuarios WHERE UsuarioId = @UsuarioId";
+
+        using var connection = _context.CreateConnection();
+        return await connection.QueryFirstOrDefaultAsync<Tbl_Usuario>(sql, new { UsuarioId = usuarioId });
     }
 
     public async Task<int> CreateAsync(Tbl_Usuario usuario)

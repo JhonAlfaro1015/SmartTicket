@@ -25,6 +25,7 @@ public static class DependencyInjection
         services.AddScoped<IPrioridadRepository, PrioridadRepository>();
         services.AddScoped<ISubcategoriaRepository, SubcategoriaRepository>();
         services.AddSingleton<IMotorClasificacionTexto, MotorClasificacionTexto>();
+        services.AddScoped<IDashboardRepository, DashboardRepository>();
 
         return services;
     }

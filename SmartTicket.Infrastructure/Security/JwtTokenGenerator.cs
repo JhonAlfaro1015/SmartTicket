@@ -12,7 +12,7 @@ public class JwtTokenGenerator(IConfiguration configuration) : IJwtTokenGenerato
 {
     private readonly IConfiguration _configuration = configuration;
 
-    public (string Token, DateTime ExpiraEn) GenerateToken(Tbl_Usuario usuario, string rolNombre)
+    public (string Token, DateTime ExpiraEn) GenerateToken(int id, string email, string nombre, string rolNombre)
     {
         var jwtSettings = _configuration.GetSection("Jwt");
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]!));
@@ -22,9 +22,9 @@ public class JwtTokenGenerator(IConfiguration configuration) : IJwtTokenGenerato
 
         var claims = new[]
         {
-            new Claim(JwtRegisteredClaimNames.Sub, usuario.UsuarioId.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, usuario.Email),
-            new Claim(ClaimTypes.Name, usuario.Nombre),
+            new Claim(JwtRegisteredClaimNames.Sub, id.ToString()),
+            new Claim(JwtRegisteredClaimNames.Email, email),
+            new Claim(ClaimTypes.Name, nombre),
             new Claim(ClaimTypes.Role, rolNombre)
         };
 
