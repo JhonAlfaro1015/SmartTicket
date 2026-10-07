@@ -1,0 +1,62 @@
+<div class="auth-page auth-page--cliente">
+  <mat-card class="auth-card">
+    <div class="auth-header">
+      <mat-icon class="auth-icon">person_add</mat-icon>
+      <h1>Crear cuenta</h1>
+      <p>Regístrate para enviar tus solicitudes</p>
+    </div>
+ 
+    <form [formGroup]="formulario" (ngSubmit)="onSubmit()" class="auth-form">
+      <mat-form-field appearance="outline">
+        <mat-label>Nombre completo</mat-label>
+        <input matInput formControlName="nombre">
+        @if (formulario.get('nombre')?.hasError('required') && formulario.get('nombre')?.touched) {
+          <mat-error>El nombre es obligatorio</mat-error>
+        }
+      </mat-form-field>
+ 
+      <mat-form-field appearance="outline">
+        <mat-label>Correo electrónico</mat-label>
+        <input matInput type="email" formControlName="email">
+        @if (formulario.get('email')?.hasError('required') && formulario.get('email')?.touched) {
+          <mat-error>El correo es obligatorio</mat-error>
+        }
+        @if (formulario.get('email')?.hasError('email') && formulario.get('email')?.touched) {
+          <mat-error>Correo inválido</mat-error>
+        }
+      </mat-form-field>
+ 
+      <mat-form-field appearance="outline">
+        <mat-label>Teléfono (opcional)</mat-label>
+        <input matInput formControlName="telefono">
+      </mat-form-field>
+ 
+      <mat-form-field appearance="outline">
+        <mat-label>Contraseña</mat-label>
+        <input matInput type="password" formControlName="password">
+        @if (formulario.get('password')?.hasError('required') && formulario.get('password')?.touched) {
+          <mat-error>La contraseña es obligatoria</mat-error>
+        }
+        @if (formulario.get('password')?.hasError('minlength') && formulario.get('password')?.touched) {
+          <mat-error>Mínimo 6 caracteres</mat-error>
+        }
+      </mat-form-field>
+ 
+      @if (errorMensaje()) {
+        <div class="error-banner">{{ errorMensaje() }}</div>
+      }
+ 
+      <button mat-flat-button color="primary" type="submit" class="submit-btn" [disabled]="cargando()">
+        @if (cargando()) {
+          <mat-spinner diameter="20"></mat-spinner>
+        } @else {
+          Crear cuenta
+        }
+      </button>
+    </form>
+ 
+    <div class="auth-footer">
+      <a routerLink="/auth/cliente/login">¿Ya tienes cuenta? Inicia sesión</a>
+    </div>
+  </mat-card>
+</div>
