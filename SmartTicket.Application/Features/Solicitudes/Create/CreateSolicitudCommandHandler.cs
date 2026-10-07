@@ -8,39 +8,26 @@ using SmartTicket.Domain.Entity;
 
 namespace SmartTicket.Application.Features.Solicitudes.Create;
 
-public class CreateSolicitudCommandHandler : IRequestHandler<CreateSolicitudCommand, SolicitudResponseDto>
+public class CreateSolicitudCommandHandler(
+    ISolicitudRepository solicitudRepository,
+    IEstadoRepository estadoRepository,
+    ICategoriaRepository categoriaRepository,
+    IAreaRepository areaRepository,
+    IPrioridadRepository prioridadRepository,
+    ISubcategoriaRepository subcategoriaRepository,
+    IMotorClasificacionTexto motorReglas,
+    IMotorClasificacionML motorML,
+    IMapper mapper) : IRequestHandler<CreateSolicitudCommand, SolicitudResponseDto>
 {
-    private readonly ISolicitudRepository _solicitudRepository;
-    private readonly IEstadoRepository _estadoRepository;
-    private readonly ICategoriaRepository _categoriaRepository;
-    private readonly IAreaRepository _areaRepository;
-    private readonly IPrioridadRepository _prioridadRepository;
-    private readonly ISubcategoriaRepository _subcategoriaRepository;
-    private readonly IMotorClasificacionTexto _motorReglas;
-    private readonly IMotorClasificacionML _motorML;
-    private readonly IMapper _mapper;
-
-    public CreateSolicitudCommandHandler(
-        ISolicitudRepository solicitudRepository,
-        IEstadoRepository estadoRepository,
-        ICategoriaRepository categoriaRepository,
-        IAreaRepository areaRepository,
-        IPrioridadRepository prioridadRepository,
-        ISubcategoriaRepository subcategoriaRepository,
-        IMotorClasificacionTexto motorReglas,
-        IMotorClasificacionML motorML,
-        IMapper mapper)
-    {
-        _solicitudRepository = solicitudRepository;
-        _estadoRepository = estadoRepository;
-        _categoriaRepository = categoriaRepository;
-        _areaRepository = areaRepository;
-        _prioridadRepository = prioridadRepository;
-        _subcategoriaRepository = subcategoriaRepository;
-        _motorReglas = motorReglas;
-        _motorML = motorML;
-        _mapper = mapper;
-    }
+    private readonly ISolicitudRepository _solicitudRepository = solicitudRepository;
+    private readonly IEstadoRepository _estadoRepository = estadoRepository;
+    private readonly ICategoriaRepository _categoriaRepository = categoriaRepository;
+    private readonly IAreaRepository _areaRepository = areaRepository;
+    private readonly IPrioridadRepository _prioridadRepository = prioridadRepository;
+    private readonly ISubcategoriaRepository _subcategoriaRepository = subcategoriaRepository;
+    private readonly IMotorClasificacionTexto _motorReglas = motorReglas;
+    private readonly IMotorClasificacionML _motorML = motorML;
+    private readonly IMapper _mapper = mapper;
 
     public async Task<SolicitudResponseDto> Handle(CreateSolicitudCommand request, CancellationToken cancellationToken)
     {

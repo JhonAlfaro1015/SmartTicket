@@ -5,4 +5,5 @@ namespace SmartTicket.Application.Interface;
 public interface IPrioridadRepository
 {
     Task<Tbl_Prioridad?> GetByNombreAsync(string nombre);
+    Task<IEnumerable<Tbl_Prioridad>> GetAllAsync();
 }

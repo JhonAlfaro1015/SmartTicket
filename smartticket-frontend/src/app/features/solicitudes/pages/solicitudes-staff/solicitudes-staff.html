@@ -1,0 +1,100 @@
+<div class="page-container">
+  <div class="page-content">
+    <header class="page-header">
+      <div>
+        <h1>Solicitudes</h1>
+        <p>{{ usuario()?.nombre }} · {{ usuario()?.rol }}</p>
+      </div>
+      <div class="header-actions">
+        @if (puedeVerDashboard()) {
+          <button mat-stroked-button (click)="irADashboard()">
+            <mat-icon>dashboard</mat-icon> Dashboard
+          </button>
+        }
+        <button mat-stroked-button color="warn" (click)="cerrarSesion()">
+          <mat-icon>logout</mat-icon> Cerrar sesión
+        </button>
+      </div>
+    </header>
+ 
+    <mat-card class="filtros-card">
+      <div class="filtros-row">
+        <mat-form-field appearance="outline" class="filtro-field">
+          <mat-label>Estado</mat-label>
+          <mat-select [(value)]="filtroEstadoId">
+            <mat-option [value]="null">Todos</mat-option>
+            @for (e of catalogos.estados(); track e.estadoId) {
+              <mat-option [value]="e.estadoId">{{ e.nombre }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+ 
+        <mat-form-field appearance="outline" class="filtro-field">
+          <mat-label>Prioridad</mat-label>
+          <mat-select [(value)]="filtroPrioridadId">
+            <mat-option [value]="null">Todas</mat-option>
+            @for (p of catalogos.prioridades(); track p.prioridadId) {
+              <mat-option [value]="p.prioridadId">{{ p.nombre }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+ 
+        <button mat-flat-button color="primary" (click)="aplicarFiltros()">Filtrar</button>
+        <button mat-button (click)="limpiarFiltros()">Limpiar</button>
+      </div>
+    </mat-card>
+ 
+    @if (cargando()) {
+      <div class="loading-center"><mat-spinner diameter="32"></mat-spinner></div>
+    } @else if (solicitudes().length === 0) {
+      <p class="empty-state">No hay solicitudes con esos filtros.</p>
+    } @else {
+      <div class="solicitudes-list">
+        @for (s of solicitudes(); track s.solicitudId) {
+          <mat-card class="solicitud-card">
+            <div class="solicitud-header">
+              <span class="id">#{{ s.solicitudId }}</span>
+              <span class="cliente">{{ nombreCliente(s.clienteId) }}</span>
+              <span class="fecha">{{ s.fechaCreacion | date: 'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+ 
+            <p class="texto">{{ s.textoOriginal }}</p>
+ 
+            <div class="chips-row">
+              <span class="tag">{{ catalogos.nombreCategoria(s.categoriaId) }}</span>
+              <span class="tag tag--prioridad">{{ catalogos.nombrePrioridad(s.prioridadId) }}</span>
+              <span class="tag tag--estado">{{ catalogos.nombreEstado(s.estadoId) }}</span>
+              @if (s.puntuacion !== null) {
+                <span class="tag tag--score">Score: {{ s.puntuacion }}</span>
+              }
+            </div>
+ 
+            <div class="acciones-row">
+              <mat-form-field appearance="outline" class="accion-field">
+                <mat-label>Cambiar estado</mat-label>
+                <mat-select (selectionChange)="seleccionarEstado(s.solicitudId, $event.value)">
+                  @for (e of catalogos.estados(); track e.estadoId) {
+                    <mat-option [value]="e.estadoId">{{ e.nombre }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <button mat-stroked-button (click)="guardarEstado(s)">Actualizar</button>
+ 
+              @if (puedeAsignar()) {
+                <mat-form-field appearance="outline" class="accion-field">
+                  <mat-label>Asignar a</mat-label>
+                  <mat-select (selectionChange)="seleccionarAgente(s.solicitudId, $event.value)">
+                    @for (a of agentes(); track a.usuarioId) {
+                      <mat-option [value]="a.usuarioId">{{ a.nombre }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+                <button mat-stroked-button (click)="guardarAsignacion(s)">Asignar</button>
+              }
+            </div>
+          </mat-card>
+        }
+      </div>
+    }
+  </div>
+</div>

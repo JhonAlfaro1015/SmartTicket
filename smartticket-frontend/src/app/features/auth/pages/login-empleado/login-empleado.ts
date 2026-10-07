@@ -49,7 +49,12 @@ export class LoginEmpleado {
       next: (respuesta) => {
         this.tokenService.guardarToken(respuesta.token);
         this.cargando.set(false);
-        this.router.navigate(['/dashboard']);
+ 
+        if (respuesta.rol === 'Administrador' || respuesta.rol === 'Supervisor') {
+          this.router.navigate(['/dashboard']);
+        } else {
+          this.router.navigate(['/solicitudes']);
+        }
       },
       error: () => {
         this.cargando.set(false);

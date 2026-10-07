@@ -1,0 +1,69 @@
+.page-container { min-height: 100vh; background: #f4f6f9; padding: 32px 16px; }
+.page-content { max-width: 900px; margin: 0 auto; }
+ 
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+ 
+  h1 { margin: 0; font-size: 24px; }
+  p { margin: 0; color: rgba(0,0,0,0.5); font-size: 14px; }
+  .header-actions { display: flex; gap: 8px; }
+}
+ 
+.filtros-card {
+  padding: 16px 20px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+ 
+  .filtros-row { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+  .filtro-field { width: 200px; }
+}
+ 
+.loading-center { display: flex; justify-content: center; padding: 48px; }
+.empty-state { color: rgba(0,0,0,0.5); text-align: center; padding: 48px; }
+ 
+.solicitudes-list { display: flex; flex-direction: column; gap: 16px; }
+ 
+.solicitud-card {
+  padding: 20px;
+  border-radius: 12px;
+ 
+  .solicitud-header {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 13px;
+ 
+    .id { font-weight: 600; color: #2d5f8a; }
+    .cliente { font-weight: 500; }
+    .fecha { margin-left: auto; color: rgba(0,0,0,0.5); }
+  }
+ 
+  .texto { margin: 8px 0 12px; font-size: 14px; }
+ 
+  .chips-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+ 
+    .tag { font-size: 11px; padding: 3px 10px; border-radius: 12px; background: #e0f2f1; color: #0f766e; }
+    .tag--prioridad { background: #fff3e0; color: #e65100; }
+    .tag--estado { background: #eef2ff; color: #4338ca; }
+    .tag--score { background: #f3e8ff; color: #7e22ce; }
+  }
+ 
+  .acciones-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    padding-top: 12px;
+    border-top: 1px solid rgba(0,0,0,0.08);
+ 
+    .accion-field { width: 180px; margin-bottom: -20px; }
+  }
+}

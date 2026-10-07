@@ -15,4 +15,11 @@ public class CategoriaRepository(DapperContext context) : ICategoriaRepository
         using var connection = _context.CreateConnection();
         return await connection.QueryFirstOrDefaultAsync<Tbl_Categoria>(sql, new { Nombre = nombre });
     }
+
+    public async Task<IEnumerable<Tbl_Categoria>> GetAllAsync()
+    {
+        const string sql = "SELECT CategoriaId, Nombre, Activo FROM dbo.Categorias WHERE Activo = 1 ORDER BY Nombre";
+        using var connection = _context.CreateConnection();
+        return await connection.QueryAsync<Tbl_Categoria>(sql);
+    }
 }

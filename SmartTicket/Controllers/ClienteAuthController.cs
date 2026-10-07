@@ -10,16 +10,10 @@ namespace SmartTicket.Api.Controllers;
 
 [ApiController]
 [Route("api/cliente-auth")]
-public class ClienteAuthController : ControllerBase
+public class ClienteAuthController(IMediator mediator, IMapper mapper) : ControllerBase
 {
-    private readonly IMediator _mediator;
-    private readonly IMapper _mapper;
-
-    public ClienteAuthController(IMediator mediator, IMapper mapper)
-    {
-        _mediator = mediator;
-        _mapper = mapper;
-    }
+    private readonly IMediator _mediator = mediator;
+    private readonly IMapper _mapper = mapper;
 
     [HttpPost("registro")]
     public async Task<ActionResult<AuthResponseDto>> Registro([FromBody] ClienteRegisterDto request)

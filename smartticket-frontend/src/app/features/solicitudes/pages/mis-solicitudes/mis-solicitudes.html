@@ -1,0 +1,62 @@
+<div class="page-container page-container--cliente">
+  <div class="page-content">
+    <header class="page-header">
+      <div>
+        <h1>Hola, {{ usuario()?.nombre }}</h1>
+        <p>Portal de solicitudes</p>
+      </div>
+      <button mat-stroked-button color="warn" (click)="cerrarSesion()">
+        <mat-icon>logout</mat-icon> Cerrar sesión
+      </button>
+    </header>
+ 
+    <mat-card class="form-card">
+      <h2>Nueva solicitud</h2>
+      <form [formGroup]="formulario" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Describe tu solicitud</mat-label>
+          <textarea matInput rows="3" formControlName="textoOriginal"
+            placeholder="Ej: Desde ayer no tengo internet y ya reinicié el router varias veces."></textarea>
+          @if (formulario.get('textoOriginal')?.hasError('required') && formulario.get('textoOriginal')?.touched) {
+            <mat-error>Describe tu solicitud</mat-error>
+          }
+          @if (formulario.get('textoOriginal')?.hasError('minlength') && formulario.get('textoOriginal')?.touched) {
+            <mat-error>Danos un poco más de detalle (mínimo 10 caracteres)</mat-error>
+          }
+        </mat-form-field>
+ 
+        <button mat-flat-button color="primary" type="submit" [disabled]="enviando()">
+          @if (enviando()) {
+            <mat-spinner diameter="20"></mat-spinner>
+          } @else {
+            Enviar solicitud
+          }
+        </button>
+      </form>
+    </mat-card>
+ 
+    <h2 class="list-title">Mis solicitudes</h2>
+ 
+    @if (cargandoLista()) {
+      <div class="loading-center"><mat-spinner diameter="32"></mat-spinner></div>
+    } @else if (solicitudes().length === 0) {
+      <p class="empty-state">Todavía no has enviado ninguna solicitud.</p>
+    } @else {
+      <div class="solicitudes-list">
+        @for (s of solicitudes(); track s.solicitudId) {
+          <mat-card class="solicitud-card">
+            <div class="solicitud-header">
+              <span class="fecha">{{ s.fechaCreacion | date: 'dd/MM/yyyy HH:mm' }}</span>
+              <span class="tag tag--prioridad">{{ catalogos.nombrePrioridad(s.prioridadId) }}</span>
+            </div>
+            <p class="texto">{{ s.textoOriginal }}</p>
+            <div class="solicitud-footer">
+              <span class="tag">{{ catalogos.nombreCategoria(s.categoriaId) }}</span>
+              <span class="tag tag--estado">{{ catalogos.nombreEstado(s.estadoId) }}</span>
+            </div>
+          </mat-card>
+        }
+      </div>
+    }
+  </div>
+</div>

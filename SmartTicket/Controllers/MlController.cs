@@ -7,16 +7,10 @@ namespace SmartTicket.Api.Controllers;
 [ApiController]
 [Route("api/ml")]
 [Authorize(Roles = "Administrador")]
-public class MlController : ControllerBase
+public class MlController(IEntrenadorModeloML entrenador, IWebHostEnvironment environment) : ControllerBase
 {
-    private readonly IEntrenadorModeloML _entrenador;
-    private readonly IWebHostEnvironment _environment;
-
-    public MlController(IEntrenadorModeloML entrenador, IWebHostEnvironment environment)
-    {
-        _entrenador = entrenador;
-        _environment = environment;
-    }
+    private readonly IEntrenadorModeloML _entrenador = entrenador;
+    private readonly IWebHostEnvironment _environment = environment;
 
     [HttpPost("entrenar")]
     public ActionResult<ResultadoEntrenamiento> Entrenar()

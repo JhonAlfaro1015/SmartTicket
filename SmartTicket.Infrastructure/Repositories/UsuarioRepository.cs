@@ -32,4 +32,17 @@ public class UsuarioRepository(DapperContext context) : IUsuarioRepository
         using var connection = _context.CreateConnection();
         return await connection.ExecuteScalarAsync<int>(sql, usuario);
     }
+
+    public async Task<IEnumerable<Tbl_Usuario>> GetByRolNombreAsync(string rolNombre)
+    {
+        const string sql = @"
+            SELECT u.UsuarioId, u.RolId, u.Nombre, u.Email, u.PasswordHash, u.Activo, u.FechaCreacion
+            FROM dbo.Usuarios u
+            JOIN dbo.Roles r ON r.RolId = u.RolId
+            WHERE r.Nombre = @RolNombre AND u.Activo = 1
+            ORDER BY u.Nombre";
+
+        using var connection = _context.CreateConnection();
+        return await connection.QueryAsync<Tbl_Usuario>(sql, new { RolNombre = rolNombre });
+    }
 }

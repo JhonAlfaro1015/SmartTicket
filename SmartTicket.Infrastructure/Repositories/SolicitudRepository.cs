@@ -81,4 +81,17 @@ public class SolicitudRepository(DapperContext context) : ISolicitudRepository
         using var connection = _context.CreateConnection();
         await connection.ExecuteAsync(sql, new { UsuarioAsignadoId = usuarioAsignadoId, SolicitudId = solicitudId });
     }
+
+    public async Task<IEnumerable<Tbl_Solicitud>> GetByClienteIdAsync(int clienteId)
+    {
+        const string sql = @"
+            SELECT SolicitudId, ClienteId, CategoriaId, SubcategoriaId, PrioridadId, AreaId, EstadoId,
+                   UsuarioAsignadoId, TextoOriginal, Puntuacion, FechaCreacion, FechaLimiteSLA, FechaCierre
+            FROM dbo.Solicitudes
+            WHERE ClienteId = @ClienteId
+            ORDER BY FechaCreacion DESC";
+
+        using var connection = _context.CreateConnection();
+        return await connection.QueryAsync<Tbl_Solicitud>(sql, new { ClienteId = clienteId });
+    }
 }

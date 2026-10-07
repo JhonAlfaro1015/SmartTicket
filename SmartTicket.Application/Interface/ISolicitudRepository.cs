@@ -9,4 +9,5 @@ public interface ISolicitudRepository
     Task<IEnumerable<Tbl_Solicitud>> GetAllAsync(int? estadoId, int? prioridadId);
     Task CambiarEstadoAsync(long solicitudId, int estadoAnteriorId, int estadoNuevoId, int usuarioId, bool esEstadoFinal);
     Task AsignarAsync(long solicitudId, int usuarioAsignadoId);
+    Task<IEnumerable<Tbl_Solicitud>> GetByClienteIdAsync(int clienteId);
 }

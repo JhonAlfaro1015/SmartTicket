@@ -83,4 +83,13 @@ public class SolicitudesController(IMediator mediator, IMapper mapper) : Control
             return BadRequest(new { message = ex.Message });
         }
     }
+
+    [HttpGet("mias")]
+    [Authorize(Roles = "Cliente")]
+    public async Task<ActionResult<IEnumerable<SolicitudResponseDto>>> Mias()
+    {
+        var clienteId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var result = await _mediator.Send(new GetSolicitudesPorClienteQuery(clienteId));
+        return Ok(result);
+    }
 }

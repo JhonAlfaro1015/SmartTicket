@@ -1,0 +1,52 @@
+<div class="page-container">
+  <div class="page-content">
+    <header class="page-header">
+      <div>
+        <h1>Dashboard</h1>
+        <p>{{ usuario()?.nombre }} · {{ usuario()?.rol }}</p>
+      </div>
+      <div class="header-actions">
+        <button mat-stroked-button (click)="irASolicitudes()">
+          <mat-icon>confirmation_number</mat-icon> Ver solicitudes
+        </button>
+        <button mat-stroked-button color="warn" (click)="cerrarSesion()">
+          <mat-icon>logout</mat-icon> Cerrar sesión
+        </button>
+      </div>
+    </header>
+ 
+    @if (cargando()) {
+      <div class="loading-center"><mat-spinner diameter="40"></mat-spinner></div>
+    } @else if (resumen(); as r) {
+      <div class="kpi-row">
+        <mat-card class="kpi-card">
+          <span class="kpi-value">{{ r.totalSolicitudes }}</span>
+          <span class="kpi-label">Total solicitudes</span>
+        </mat-card>
+        <mat-card class="kpi-card">
+          <span class="kpi-value">
+            {{ r.tiempoPromedioAtencionHoras !== null ? (r.tiempoPromedioAtencionHoras | number:'1.0-1') + ' h' : '—' }}
+          </span>
+          <span class="kpi-label">Tiempo promedio de atención</span>
+        </mat-card>
+      </div>
+ 
+      <div class="charts-grid">
+        <mat-card class="chart-card">
+          <h3>Solicitudes por categoría</h3>
+          <canvas baseChart [data]="chartCategoriaData()" type="bar" [options]="chartOptions"></canvas>
+        </mat-card>
+ 
+        <mat-card class="chart-card">
+          <h3>Solicitudes por prioridad</h3>
+          <canvas baseChart [data]="chartPrioridadData()" type="doughnut" [options]="doughnutOptions"></canvas>
+        </mat-card>
+ 
+        <mat-card class="chart-card chart-card--wide">
+          <h3>Solicitudes por estado</h3>
+          <canvas baseChart [data]="chartEstadoData()" type="bar" [options]="chartOptions"></canvas>
+        </mat-card>
+      </div>
+    }
+  </div>
+</div>

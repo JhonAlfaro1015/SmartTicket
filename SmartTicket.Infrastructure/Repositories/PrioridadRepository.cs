@@ -16,4 +16,11 @@ public class PrioridadRepository(DapperContext context) : IPrioridadRepository
         using var connection = _context.CreateConnection();
         return await connection.QueryFirstOrDefaultAsync<Tbl_Prioridad>(sql, new { Nombre = nombre });
     }
+
+    public async Task<IEnumerable<Tbl_Prioridad>> GetAllAsync()
+    {
+        const string sql = "SELECT PrioridadId, Nombre, NivelUrgencia FROM dbo.Prioridades ORDER BY NivelUrgencia";
+        using var connection = _context.CreateConnection();
+        return await connection.QueryAsync<Tbl_Prioridad>(sql);
+    }
 }
