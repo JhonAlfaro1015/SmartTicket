@@ -55,32 +55,45 @@
             <div class="solicitud-header">
               <span class="id">#{{ s.solicitudId }}</span>
               <span class="cliente">{{ nombreCliente(s.clienteId) }}</span>
-              <span class="fecha">{{ s.fechaCreacion | date: 'dd/MM/yyyy HH:mm' }}</span>
+              <span class="fecha">{{ aUtc(s.fechaCreacion) | date: 'dd/MM/yyyy HH:mm' }}</span>
             </div>
  
             <p class="texto">{{ s.textoOriginal }}</p>
  
             <div class="chips-row">
               <span class="tag">{{ catalogos.nombreCategoria(s.categoriaId) }}</span>
+              <span class="tag tag--area">Área: {{ catalogos.nombreArea(s.areaId) }}</span>
               <span class="tag tag--prioridad">{{ catalogos.nombrePrioridad(s.prioridadId) }}</span>
               <span class="tag tag--estado">{{ catalogos.nombreEstado(s.estadoId) }}</span>
               @if (s.puntuacion !== null) {
                 <span class="tag tag--score">Score: {{ s.puntuacion }}</span>
               }
+              @if (s.fechaLimiteSLA) {
+                <span class="tag tag--sla">Vence: {{ aUtc(s.fechaLimiteSLA) | date: 'dd/MM HH:mm' }}</span>
+              }
+              @if (s.usuarioAsignadoId) {
+                <span class="tag tag--asignado">Asignada a: {{ nombreAgente(s.usuarioAsignadoId) }}</span>
+              } @else {
+                <span class="tag tag--sin-asignar">Sin asignar</span>
+              }
             </div>
  
-            <div class="acciones-row">
-              <mat-form-field appearance="outline" class="accion-field">
-                <mat-label>Cambiar estado</mat-label>
-                <mat-select (selectionChange)="seleccionarEstado(s.solicitudId, $event.value)">
-                  @for (e of catalogos.estados(); track e.estadoId) {
-                    <mat-option [value]="e.estadoId">{{ e.nombre }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-              <button mat-stroked-button (click)="guardarEstado(s)">Actualizar</button>
+            <div class="estados-row">
+              <span class="estados-label">Cambiar estado a:</span>
+              @for (e of catalogos.estados(); track e.estadoId) {
+                @if (e.estadoId !== s.estadoId) {
+                  <button mat-stroked-button class="btn-estado" [class.btn-estado--final]="e.esFinal"
+                          (click)="cambiarEstado(s, e.estadoId)">
+                    {{ e.nombre }}
+                  </button>
+                }
+              } @empty {
+                <span class="aviso">No hay estados configurados en dbo.Estados.</span>
+              }
+            </div>
  
-              @if (puedeAsignar()) {
+            @if (puedeAsignar()) {
+              <div class="acciones-row">
                 <mat-form-field appearance="outline" class="accion-field">
                   <mat-label>Asignar a</mat-label>
                   <mat-select (selectionChange)="seleccionarAgente(s.solicitudId, $event.value)">
@@ -90,8 +103,8 @@
                   </mat-select>
                 </mat-form-field>
                 <button mat-stroked-button (click)="guardarAsignacion(s)">Asignar</button>
-              }
-            </div>
+              </div>
+            }
           </mat-card>
         }
       </div>

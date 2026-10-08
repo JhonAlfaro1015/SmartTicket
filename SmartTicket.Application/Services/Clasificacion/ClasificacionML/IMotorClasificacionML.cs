@@ -3,4 +3,5 @@
 public interface IMotorClasificacionML
 {
     (string CategoriaPredicha, float Confianza) PredecirCategoria(string texto);
+    (string PrioridadPredicha, float Confianza) PredecirPrioridad(string texto);
 }

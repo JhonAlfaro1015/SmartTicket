@@ -2,10 +2,10 @@
 
 namespace SmartTicket.Infrastructure.MachineLearning;
 
-public class SolicitudCategoriaPrediction
+public class PrediccionEtiqueta
 {
     [ColumnName("PredictedLabel")]
-    public string CategoriaPredicha { get; set; } = null!;
+    public string Etiqueta { get; set; } = null!;
 
     public float[] Score { get; set; } = null!;
 }

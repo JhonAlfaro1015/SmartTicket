@@ -51,9 +51,26 @@
     margin-bottom: 12px;
  
     .tag { font-size: 11px; padding: 3px 10px; border-radius: 12px; background: #e0f2f1; color: #0f766e; }
-    .tag--prioridad { background: #fff3e0; color: #e65100; }
+    .tag--area { background: #e8f5e9; color: #2e7d32; }
+    .tag--prioridad { background: #fff3e0; color: #e65100; font-weight: 600; }
     .tag--estado { background: #eef2ff; color: #4338ca; }
     .tag--score { background: #f3e8ff; color: #7e22ce; }
+    .tag--sla { background: #fde7e9; color: #b3261e; }
+    .tag--asignado { background: #e3f2fd; color: #1565c0; }
+    .tag--sin-asignar { background: #eeeeee; color: #616161; }
+  }
+ 
+  .estados-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    padding-top: 12px;
+    border-top: 1px solid rgba(0,0,0,0.08);
+ 
+    .estados-label { font-size: 13px; color: rgba(0,0,0,0.6); margin-right: 4px; }
+    .btn-estado--final { color: #b3261e; }
+    .aviso { font-size: 13px; color: #b3261e; }
   }
  
   .acciones-row {
@@ -61,9 +78,8 @@
     gap: 10px;
     align-items: center;
     flex-wrap: wrap;
-    padding-top: 12px;
-    border-top: 1px solid rgba(0,0,0,0.08);
+    margin-top: 12px;
  
-    .accion-field { width: 180px; margin-bottom: -20px; }
+    .accion-field { width: 220px; margin-bottom: -20px; }
   }
 }

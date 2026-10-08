@@ -3,42 +3,55 @@ using SmartTicket.Application.Services.Clasificacion.ClasificacionML;
 
 namespace SmartTicket.Infrastructure.MachineLearning;
 
-public class EntrenadorModeloML(string rutaModelo) : IEntrenadorModeloML
+internal static class RutasModelo
 {
-    private readonly string _rutaModelo = rutaModelo;
+    public static string Categoria(string directorio) => Path.Combine(directorio, "modelo_categoria.zip");
+    public static string Prioridad(string directorio) => Path.Combine(directorio, "modelo_prioridad.zip");
+}
+
+public class EntrenadorModeloML(string directorioModelos) : IEntrenadorModeloML
+{
+    private readonly string _directorioModelos = directorioModelos;
 
     public ResultadoEntrenamiento EntrenarDesdeCsv(string rutaCsv)
     {
         var mlContext = new MLContext(seed: 42);
 
-        IDataView dataViewCompleto = mlContext.Data.LoadFromTextFile<SolicitudTextoInput>(
+        IDataView dataView = mlContext.Data.LoadFromTextFile<SolicitudTextoInput>(
             path: rutaCsv,
             hasHeader: true,
-            separatorChar: ',');
+            separatorChar: ',',
+            allowQuoting: true);
 
-        // 80% entrenamiento / 20% prueba -> la precisión que reporta es sobre
-        // datos que el modelo NUNCA vio, por eso es una métrica real y defendible
-        var split = mlContext.Data.TrainTestSplit(dataViewCompleto, testFraction: 0.2, seed: 42);
+        var metricasCategoria = EntrenarYGuardar(
+            mlContext, dataView, nameof(SolicitudTextoInput.Categoria), RutasModelo.Categoria(_directorioModelos));
 
-        var pipeline = mlContext.Transforms.Conversion.MapValueToKey("Label", nameof(SolicitudTextoInput.Categoria))
+        var metricasPrioridad = EntrenarYGuardar(
+            mlContext, dataView, nameof(SolicitudTextoInput.Prioridad), RutasModelo.Prioridad(_directorioModelos));
+
+        var total = mlContext.Data.CreateEnumerable<SolicitudTextoInput>(dataView, reuseRowObject: false).Count();
+
+        return new ResultadoEntrenamiento(metricasCategoria, metricasPrioridad, total);
+    }
+
+    private static MetricasModelo EntrenarYGuardar(
+        MLContext mlContext, IDataView dataView, string columnaEtiqueta, string rutaModelo)
+    {
+        // 80% entrenamiento / 20% prueba: la métrica sale de datos que el modelo no vio
+        var split = mlContext.Data.TrainTestSplit(dataView, testFraction: 0.2, seed: 42);
+
+        var pipeline = mlContext.Transforms.Conversion.MapValueToKey("Label", columnaEtiqueta)
             .Append(mlContext.Transforms.Text.FeaturizeText("Features", nameof(SolicitudTextoInput.Texto)))
             .Append(mlContext.MulticlassClassification.Trainers.SdcaMaximumEntropy())
             .Append(mlContext.Transforms.Conversion.MapKeyToValue("PredictedLabel"));
 
         var modeloEvaluacion = pipeline.Fit(split.TrainSet);
-        var predicciones = modeloEvaluacion.Transform(split.TestSet);
-        var metricas = mlContext.MulticlassClassification.Evaluate(predicciones);
+        var metricas = mlContext.MulticlassClassification.Evaluate(modeloEvaluacion.Transform(split.TestSet));
 
-        // Modelo final: se reentrena con el 100% de los datos y ES el que se guarda/usa
-        var modeloFinal = pipeline.Fit(dataViewCompleto);
-        mlContext.Model.Save(modeloFinal, dataViewCompleto.Schema, _rutaModelo);
+        // Modelo final: se reentrena con el 100% de los datos y es el que se guarda
+        var modeloFinal = pipeline.Fit(dataView);
+        mlContext.Model.Save(modeloFinal, dataView.Schema, rutaModelo);
 
-        var total = mlContext.Data.CreateEnumerable<SolicitudTextoInput>(dataViewCompleto, reuseRowObject: false).Count();
-
-        return new ResultadoEntrenamiento(
-            MicroAccuracy: metricas.MicroAccuracy,
-            MacroAccuracy: metricas.MacroAccuracy,
-            LogLoss: metricas.LogLoss,
-            TotalRegistros: total);
+        return new MetricasModelo(metricas.MicroAccuracy, metricas.MacroAccuracy, metricas.LogLoss);
     }
 }

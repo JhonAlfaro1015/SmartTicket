@@ -29,11 +29,12 @@ public static class DependencyInjection
         services.AddSingleton<IMotorClasificacionTexto, MotorClasificacionTexto>();
         services.AddScoped<IDashboardRepository, DashboardRepository>();
 
-        var rutaModelo = Path.Combine(AppContext.BaseDirectory, "MachineLearning", "modelo_categoria.zip");
-        Directory.CreateDirectory(Path.GetDirectoryName(rutaModelo)!);
+        var directorioModelos = Path.Combine(AppContext.BaseDirectory, "MachineLearning");
+        Directory.CreateDirectory(directorioModelos);
 
-        services.AddSingleton<IEntrenadorModeloML>(_ => new EntrenadorModeloML(rutaModelo));
-        services.AddSingleton<IMotorClasificacionML>(_ => new MotorClasificacionML(rutaModelo));
+        services.AddSingleton<IEntrenadorModeloML>(_ => new EntrenadorModeloML(directorioModelos));
+        services.AddSingleton<IMotorClasificacionML>(_ => new MotorClasificacionML(directorioModelos));
+        services.AddScoped<IReglaSlaRepository, ReglaSlaRepository>();
 
         return services;
     }

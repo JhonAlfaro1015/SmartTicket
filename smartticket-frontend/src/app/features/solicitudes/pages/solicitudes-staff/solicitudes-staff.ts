@@ -54,7 +54,6 @@ export class SolicitudesStaff implements OnInit {
   readonly filtroEstadoId = signal<number | null>(null);
   readonly filtroPrioridadId = signal<number | null>(null);
  
-  readonly estadoSeleccionado = signal<Record<number, number>>({});
   readonly agenteSeleccionado = signal<Record<number, number>>({});
  
   ngOnInit(): void {
@@ -110,26 +109,33 @@ export class SolicitudesStaff implements OnInit {
     return cache.get(clienteId)!;
   }
  
-  seleccionarEstado(solicitudId: number, estadoId: number): void {
-    this.estadoSeleccionado.update(m => ({ ...m, [solicitudId]: estadoId }));
+  nombreAgente(usuarioId: number): string {
+    return this.agentes().find(a => a.usuarioId === usuarioId)?.nombre ?? `Agente #${usuarioId}`;
   }
  
-  seleccionarAgente(solicitudId: number, usuarioId: number): void {
-    this.agenteSeleccionado.update(m => ({ ...m, [solicitudId]: usuarioId }));
+  // El backend devuelve las fechas en UTC pero sin la "Z" al leerlas de la BD,
+  // y el navegador las interpretaba como hora local (5 horas de diferencia en Colombia).
+  aUtc(fecha: string): string {
+    return /(Z|[+-]\d{2}:\d{2})$/i.test(fecha) ? fecha : `${fecha}Z`;
   }
  
-  guardarEstado(solicitud: SolicitudResponse): void {
-    const nuevoEstadoId = this.estadoSeleccionado()[solicitud.solicitudId];
+  cambiarEstado(solicitud: SolicitudResponse, nuevoEstadoId: number): void {
     const usuarioId = this.usuario()?.id;
-    if (!nuevoEstadoId || !usuarioId) return;
+    if (!usuarioId) return;
  
     this.solicitudesCommand.cambiarEstado(solicitud.solicitudId, { nuevoEstadoId, usuarioId }).subscribe({
       next: () => {
-        this.snackBar.open('Estado actualizado', 'Cerrar', { duration: 3000 });
+        this.snackBar.open(
+          `Solicitud #${solicitud.solicitudId} → ${this.catalogos.nombreEstado(nuevoEstadoId)}`,
+          'Cerrar', { duration: 3000 });
         this.cargarSolicitudes();
       },
       error: () => this.snackBar.open('No fue posible actualizar el estado', 'Cerrar', { duration: 3000 })
     });
+  }
+ 
+  seleccionarAgente(solicitudId: number, usuarioId: number): void {
+    this.agenteSeleccionado.update(m => ({ ...m, [solicitudId]: usuarioId }));
   }
  
   guardarAsignacion(solicitud: SolicitudResponse): void {
