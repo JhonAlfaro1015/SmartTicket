@@ -130,25 +130,30 @@ export class SolicitudesStaff implements OnInit {
           'Cerrar', { duration: 3000 });
         this.cargarSolicitudes();
       },
-      error: () => this.snackBar.open('No fue posible actualizar el estado', 'Cerrar', { duration: 3000 })
+      error: (err) => this.snackBar.open(
+        err.error?.message ?? 'No fue posible actualizar el estado', 'Cerrar', { duration: 5000 })
     });
-  }
- 
-  seleccionarAgente(solicitudId: number, usuarioId: number): void {
-    this.agenteSeleccionado.update(m => ({ ...m, [solicitudId]: usuarioId }));
   }
  
   guardarAsignacion(solicitud: SolicitudResponse): void {
     const usuarioAsignadoId = this.agenteSeleccionado()[solicitud.solicitudId];
-    if (!usuarioAsignadoId) return;
+    if (!usuarioAsignadoId) {
+      this.snackBar.open('Selecciona un agente antes de asignar', 'Cerrar', { duration: 3000 });
+      return;
+    }
  
     this.solicitudesCommand.asignar(solicitud.solicitudId, { usuarioAsignadoId }).subscribe({
       next: () => {
         this.snackBar.open('Solicitud asignada', 'Cerrar', { duration: 3000 });
         this.cargarSolicitudes();
       },
-      error: () => this.snackBar.open('No fue posible asignar la solicitud', 'Cerrar', { duration: 3000 })
+      error: (err) => this.snackBar.open(
+        err.error?.message ?? 'No fue posible asignar la solicitud', 'Cerrar', { duration: 5000 })
     });
+  }
+ 
+  seleccionarAgente(solicitudId: number, usuarioId: number): void {
+    this.agenteSeleccionado.update(m => ({ ...m, [solicitudId]: usuarioId }));
   }
  
   irADashboard(): void {

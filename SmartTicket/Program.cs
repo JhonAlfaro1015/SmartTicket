@@ -87,6 +87,8 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+app.UseMiddleware<SmartTicket.Api.Middleware.ManejoErroresMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

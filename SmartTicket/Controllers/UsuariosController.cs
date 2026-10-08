@@ -16,7 +16,6 @@ public class UsuariosController(IUsuarioRepository usuarioRepository) : Controll
     {
         var usuarios = await _usuarioRepository.GetByRolNombreAsync(rol);
 
-        // Proyección explícita: nunca se expone PasswordHash
         var resultado = usuarios.Select(u => new { u.UsuarioId, u.Nombre, u.Email });
 
         return Ok(resultado);

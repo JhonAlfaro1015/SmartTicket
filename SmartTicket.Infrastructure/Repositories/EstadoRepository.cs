@@ -25,7 +25,7 @@ public class EstadoRepository(DapperContext context) : IEstadoRepository
 
     public async Task<IEnumerable<Tbl_Estado>> GetAllAsync()
     {
-        const string sql = "SELECT EstadoId, Nombre, EsFinal FROM dbo.Estados ORDER BY EstadoId";
+        const string sql = "SELECT EstadoId, Nombre, EsFinal FROM dbo.Estados ORDER BY Orden, EstadoId";
         using var connection = _context.CreateConnection();
         return await connection.QueryAsync<Tbl_Estado>(sql);
     }

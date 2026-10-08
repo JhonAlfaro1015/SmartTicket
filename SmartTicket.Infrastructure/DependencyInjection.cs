@@ -28,6 +28,8 @@ public static class DependencyInjection
         services.AddScoped<ISubcategoriaRepository, SubcategoriaRepository>();
         services.AddSingleton<IMotorClasificacionTexto, MotorClasificacionTexto>();
         services.AddScoped<IDashboardRepository, DashboardRepository>();
+        services.AddScoped<IEstadoTransicionRepository, EstadoTransicionRepository>();
+        services.AddScoped<IComentarioRepository, ComentarioRepository>();
 
         var directorioModelos = Path.Combine(AppContext.BaseDirectory, "MachineLearning");
         Directory.CreateDirectory(directorioModelos);

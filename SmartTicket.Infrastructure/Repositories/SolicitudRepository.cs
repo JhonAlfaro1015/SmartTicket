@@ -51,16 +51,27 @@ public class SolicitudRepository(DapperContext context) : ISolicitudRepository
         await connection.OpenAsync();
         using var transaction = connection.BeginTransaction();
 
-        const string updateSql = @"UPDATE Solicitudes SET EstadoId = @EstadoNuevoId, FechaCierre = CASE WHEN @EsFinal = 1 THEN SYSUTCDATETIME() ELSE FechaCierre END WHERE SolicitudId = @SolicitudId";
+        const string updateSql = @"
+            UPDATE dbo.Solicitudes
+            SET EstadoId = @EstadoNuevoId,
+                FechaCierre = CASE WHEN @EsFinal = 1 THEN SYSUTCDATETIME() ELSE FechaCierre END
+            WHERE SolicitudId = @SolicitudId AND EstadoId = @EstadoAnteriorId";
 
-        await connection.ExecuteAsync(updateSql, new
+        var filasAfectadas = await connection.ExecuteAsync(updateSql, new
         {
             EstadoNuevoId = estadoNuevoId,
+            EstadoAnteriorId = estadoAnteriorId,
             EsFinal = esEstadoFinal,
             SolicitudId = solicitudId
         }, transaction);
 
-        const string historialSql = @"INSERT INTO SolicitudHistorialEstados (SolicitudId, EstadoAnteriorId, EstadoNuevoId, UsuarioId, FechaCambio) VALUES (@SolicitudId, @EstadoAnteriorId, @EstadoNuevoId, @UsuarioId, @FechaCambio)";
+        if (filasAfectadas == 0)
+            throw new SmartTicket.Application.Common.Exceptions.ReglaNegocioException(
+                "La solicitud cambió de estado mientras la actualizabas. Recarga e inténtalo de nuevo.");
+
+        const string historialSql = @"
+            INSERT INTO dbo.SolicitudHistorialEstados (SolicitudId, EstadoAnteriorId, EstadoNuevoId, UsuarioId, FechaCambio)
+            VALUES (@SolicitudId, @EstadoAnteriorId, @EstadoNuevoId, @UsuarioId, @FechaCambio)";
 
         await connection.ExecuteAsync(historialSql, new
         {

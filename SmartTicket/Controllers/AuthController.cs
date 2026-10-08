@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SmartTicket.Application.Common;
 using SmartTicket.Application.Dtos.Auth;
 using SmartTicket.Application.Dtos.Auth.LoginRequestDto;
 using SmartTicket.Application.Features.Auth.Login;
@@ -31,6 +33,7 @@ namespace SmartTicket.Api.Controllers
         }
 
         [HttpPost("register")]
+        [Authorize(Roles = RolesSistema.Administrador)]
         public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterRequestDto request)
         {
             var command = _mapper.Map<RegisterCommand>(request);
