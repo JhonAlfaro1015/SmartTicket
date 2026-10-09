@@ -2,9 +2,14 @@
 
 public record MetricasModelo(double MicroAccuracy, double MacroAccuracy, double LogLoss);
 
-public record ResultadoEntrenamiento(MetricasModelo Categoria, MetricasModelo Prioridad, int TotalRegistros);
+public record ResultadoEntrenamiento(
+    MetricasModelo Categoria,
+    MetricasModelo Prioridad,
+    int RegistrosEntrenamiento,
+    int RegistrosValidacion,
+    string TipoValidacion);
 
 public interface IEntrenadorModeloML
 {
-    ResultadoEntrenamiento EntrenarDesdeCsv(string rutaCsv);
+    ResultadoEntrenamiento EntrenarDesdeCsv(string rutaEntrenamiento, string? rutaValidacion = null);
 }

@@ -15,12 +15,13 @@ public class MlController(IEntrenadorModeloML entrenador, IWebHostEnvironment en
     [HttpPost("entrenar")]
     public ActionResult<ResultadoEntrenamiento> Entrenar()
     {
-        var rutaCsv = Path.Combine(_environment.ContentRootPath, "Data", "solicitudes_dataset_simulado.csv");
+        var carpetaDatos = Path.Combine(_environment.ContentRootPath, "Data");
+        var rutaEntrenamiento = Path.Combine(carpetaDatos, "solicitudes_entrenamiento.csv");
+        var rutaValidacion = Path.Combine(carpetaDatos, "solicitudes_validacion.csv");
 
-        if (!System.IO.File.Exists(rutaCsv))
-            return NotFound(new { message = $"No se encontró el archivo de entrenamiento en: {rutaCsv}" });
+        if (!System.IO.File.Exists(rutaEntrenamiento))
+            return NotFound(new { message = $"No se encontró el archivo de entrenamiento en: {rutaEntrenamiento}" });
 
-        var resultado = _entrenador.EntrenarDesdeCsv(rutaCsv);
-        return Ok(resultado);
+        return Ok(_entrenador.EntrenarDesdeCsv(rutaEntrenamiento, rutaValidacion));
     }
 }
