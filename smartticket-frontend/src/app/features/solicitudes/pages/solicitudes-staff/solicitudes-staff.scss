@@ -1,85 +1,38 @@
-.page-container { min-height: 100vh; background: #f4f6f9; padding: 32px 16px; }
-.page-content { max-width: 900px; margin: 0 auto; }
+.pagina { min-height: 100vh; background: #f1f5f9; padding: 28px 16px 48px; }
+.contenido { max-width: 1000px; margin: 0 auto; }
  
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 24px;
- 
-  h1 { margin: 0; font-size: 24px; }
-  p { margin: 0; color: rgba(0,0,0,0.5); font-size: 14px; }
-  .header-actions { display: flex; gap: 8px; }
+.encabezado { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 20px;
+  h1 { margin: 0; font-size: 26px; color: #0f172a; }
+  p { margin: 2px 0 0; color: #64748b; font-size: 14px; }
+  .acciones-encabezado { display: flex; gap: 8px; }
 }
  
-.filtros-card {
-  padding: 16px 20px;
-  border-radius: 12px;
-  margin-bottom: 24px;
+.resumen { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; border: 2px solid transparent; border-radius: 999px;
+        padding: 6px 14px 6px 10px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+        transition: box-shadow .12s, transform .12s;
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  .n { font-weight: 800; font-size: 15px; }
+  &:hover { transform: translateY(-1px); }
+  &.activo { border-color: currentColor; box-shadow: 0 0 0 3px rgba(15,23,42,.08); }
+}
+.chip--todas { background: #e2e8f0; color: #1e293b; }
  
-  .filtros-row { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
-  .filtro-field { width: 200px; }
+.filtros { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 12px; margin-bottom: 22px;
+  .busqueda { flex: 1 1 260px; }
+  .campo { width: 190px; }
 }
  
-.loading-center { display: flex; justify-content: center; padding: 48px; }
-.empty-state { color: rgba(0,0,0,0.5); text-align: center; padding: 48px; }
+.seccion { display: flex; align-items: center; gap: 8px; font-size: 16px; margin: 24px 0 12px; color: #0f172a;
+  .contador { background: #0f172a; color: #fff; border-radius: 999px; font-size: 12px; padding: 1px 9px; }
+}
+.seccion--final { color: #64748b; .contador { background: #94a3b8; } }
  
-.solicitudes-list { display: flex; flex-direction: column; gap: 16px; }
+.lista { display: flex; flex-direction: column; gap: 14px; }
+.cargando { display: flex; justify-content: center; padding: 64px; }
+.vacio { text-align: center; color: #64748b; padding: 32px; }
  
-.solicitud-card {
-  padding: 20px;
-  border-radius: 12px;
- 
-  .solicitud-header {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    margin-bottom: 8px;
-    font-size: 13px;
- 
-    .id { font-weight: 600; color: #2d5f8a; }
-    .cliente { font-weight: 500; }
-    .fecha { margin-left: auto; color: rgba(0,0,0,0.5); }
-  }
- 
-  .texto { margin: 8px 0 12px; font-size: 14px; }
- 
-  .chips-row {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-bottom: 12px;
- 
-    .tag { font-size: 11px; padding: 3px 10px; border-radius: 12px; background: #e0f2f1; color: #0f766e; }
-    .tag--area { background: #e8f5e9; color: #2e7d32; }
-    .tag--prioridad { background: #fff3e0; color: #e65100; font-weight: 600; }
-    .tag--estado { background: #eef2ff; color: #4338ca; }
-    .tag--score { background: #f3e8ff; color: #7e22ce; }
-    .tag--sla { background: #fde7e9; color: #b3261e; }
-    .tag--asignado { background: #e3f2fd; color: #1565c0; }
-    .tag--sin-asignar { background: #eeeeee; color: #616161; }
-  }
- 
-  .estados-row {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    flex-wrap: wrap;
-    padding-top: 12px;
-    border-top: 1px solid rgba(0,0,0,0.08);
- 
-    .estados-label { font-size: 13px; color: rgba(0,0,0,0.6); margin-right: 4px; }
-    .btn-estado--final { color: #b3261e; }
-    .aviso { font-size: 13px; color: #b3261e; }
-  }
- 
-  .acciones-row {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
-    margin-top: 12px;
- 
-    .accion-field { width: 220px; margin-bottom: -20px; }
-  }
+@media (max-width: 720px) {
+  .encabezado { flex-direction: column; }
+  .filtros .campo { width: 100%; }
 }

@@ -1,15 +1,22 @@
 ﻿namespace SmartTicket.Application.Services.Clasificacion.ClasificacionML;
 
-public record MetricasModelo(double MicroAccuracy, double MacroAccuracy, double LogLoss);
+public record ErrorClasificacion(string Texto, string Esperada, string Predicha);
+
+public record MetricasValidacion(
+    string Archivo,
+    int Registros,
+    double MicroAccuracy,
+    double MacroAccuracy,
+    double LogLoss,
+    double ExactitudDentroDeUnNivel,   // en categoría coincide con MicroAccuracy
+    List<ErrorClasificacion> Errores);
 
 public record ResultadoEntrenamiento(
-    MetricasModelo Categoria,
-    MetricasModelo Prioridad,
     int RegistrosEntrenamiento,
-    int RegistrosValidacion,
-    string TipoValidacion);
+    List<MetricasValidacion> Categoria,
+    List<MetricasValidacion> Prioridad);
 
 public interface IEntrenadorModeloML
 {
-    ResultadoEntrenamiento EntrenarDesdeCsv(string rutaEntrenamiento, string? rutaValidacion = null);
+    ResultadoEntrenamiento EntrenarDesdeCsv(string rutaEntrenamiento, IReadOnlyList<string> rutasValidacion);
 }

@@ -32,11 +32,8 @@ public class AgregarComentarioCommandHandler(
 
         var esCliente = request.Rol == RolesSistema.Cliente;
 
-        if (esCliente && solicitud.ClienteId != request.AutorId)
-            throw new AccesoDenegadoException("Solo puedes comentar tus propias solicitudes.");
-
-        if (request.Rol == RolesSistema.Agente && solicitud.UsuarioAsignadoId != request.AutorId)
-            throw new AccesoDenegadoException("Solo puedes comentar las solicitudes asignadas a ti.");
+        if (!PermisosSolicitud.PuedeComentar(request.Rol, request.AutorId, solicitud.ClienteId, solicitud.UsuarioAsignadoId))
+            throw new AccesoDenegadoException("No tienes permiso para comentar en esta solicitud.");
 
         var estado = await _estadoRepository.GetByIdAsync(solicitud.EstadoId);
         if (estado is { EsFinal: true })

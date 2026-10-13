@@ -3,18 +3,12 @@ using SmartTicket.Application.Services.Clasificacion.ClasificacionML;
 
 namespace SmartTicket.Infrastructure.MachineLearning;
 
-internal sealed class ModeloCargable
+internal sealed class ModeloCargable(MLContext mlContext, string ruta)
 {
-    private readonly MLContext _mlContext;
-    private readonly string _ruta;
+    private readonly MLContext _mlContext = mlContext;
+    private readonly string _ruta = ruta;
     private PredictionEngine<SolicitudTextoInput, PrediccionEtiqueta>? _engine;
     private DateTime _fechaArchivoCargado = DateTime.MinValue;
-
-    public ModeloCargable(MLContext mlContext, string ruta)
-    {
-        _mlContext = mlContext;
-        _ruta = ruta;
-    }
 
     public (string Etiqueta, float Confianza) Predecir(string texto)
     {

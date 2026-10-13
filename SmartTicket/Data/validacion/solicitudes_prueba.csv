@@ -1,0 +1,99 @@
+﻿SolicitudId,FechaSolicitud,CanalEntrada,TextoSolicitud,CategoriaReal,SubcategoriaReal,PrioridadReal
+1,2026-09-15,Teléfono,"Hola, desde hace 4 días estamos sin internet en toda la casa",Soporte técnico,Sin servicio,CRITICA
+2,2026-09-15,Correo,Se me fue el internet hoy en la mañana,Soporte técnico,Sin servicio,ALTA
+3,2026-09-15,Chat,No tengo señal de wifi desde esta noche,Soporte técnico,Sin servicio,ALTA
+4,2026-09-15,Web,"mi internet no sirve desde ayer, trabajo desde casa y no puedo conectarme",Soporte técnico,Sin servicio,CRITICA
+5,2026-09-15,Web,Se cayó la red de mi negocio y no podemos facturar,Soporte técnico,Sin servicio,CRITICA
+6,2026-09-15,App móvil,El router está en rojo y no hay conexión,Soporte técnico,Sin servicio,ALTA
+7,2026-09-15,Web,sin internet desde hace una semana por favor ayuda,Soporte técnico,Sin servicio,CRITICA
+8,2026-09-15,Teléfono,No hay conexión en mi apartamento,Soporte técnico,Sin servicio,ALTA
+9,2026-09-15,App móvil,El internet va muy lento en las tardes,Soporte técnico,,MEDIA
+10,2026-09-15,Web,"La conexión se corta cada rato, llevo tres días así",Soporte técnico,,ALTA
+11,2026-09-15,App móvil,Las páginas se demoran mucho en abrir,Soporte técnico,,MEDIA
+12,2026-09-15,Correo,Tengo clases virtuales y el internet se me cae constantemente,Soporte técnico,,ALTA
+13,2026-09-15,Web,El wifi se pone intermitente a veces,Soporte técnico,,MEDIA
+14,2026-09-15,Web,El servicio es inestable desde hace una semana,Soporte técnico,,ALTA
+15,2026-09-15,Chat,¿Cómo cambio la clave del wifi?,Soporte técnico,,BAJA
+16,2026-09-15,Chat,Quiero ampliar la cobertura del wifi en el segundo piso,Soporte técnico,,BAJA
+17,2026-09-15,Web,No sé cómo conectar mi impresora a la red,Soporte técnico,,BAJA
+18,2026-09-15,Correo,Necesito ayuda para configurar el control parental,Soporte técnico,,BAJA
+19,2026-09-15,Web,Tengo una duda con la configuración de mi modem,Soporte técnico,,BAJA
+20,2026-09-15,App móvil,como reinicio el router correctamente,Soporte técnico,,BAJA
+21,2026-09-15,Chat,Me cobraron dos veces la mensualidad,Facturación,,ALTA
+22,2026-09-15,Web,Hay un cargo en mi factura que no reconozco,Facturación,,ALTA
+23,2026-09-15,App móvil,La factura de este mes viene más cara que de costumbre,Facturación,,MEDIA
+24,2026-09-15,Web,Pagué hace una semana y todavía me sale como pendiente,Facturación,,MEDIA
+25,2026-09-15,Correo,Me siguen cobrando un servicio que cancelé y ya lo reclamé dos veces,Facturación,,CRITICA
+26,2026-09-15,App móvil,No me llegó la factura al correo,Facturación,,BAJA
+27,2026-09-15,Web,¿Me pueden enviar el comprobante de mi último pago?,Facturación,,BAJA
+28,2026-09-15,App móvil,Quiero cambiar la fecha de pago de mi factura,Facturación,,BAJA
+29,2026-09-15,App móvil,Me debitaron un valor diferente al de mi factura,Facturación,,ALTA
+30,2026-09-15,Chat,No me aplicaron el descuento de mi contrato,Facturación,,MEDIA
+31,2026-09-15,Web,El IVA de mi factura no coincide con mi plan,Facturación,,MEDIA
+32,2026-09-15,Correo,Necesito una certificación de que estoy al día en mis pagos,Facturación,,BAJA
+33,2026-09-15,Web,Me cobraron una reconexión que nunca solicité,Facturación,,ALTA
+34,2026-09-15,App móvil,"El cobro de mora es injusto, pagué antes de la fecha",Facturación,,ALTA
+35,2026-09-15,Correo,Quiero el detalle de mi estado de cuenta,Facturación,,BAJA
+36,2026-09-15,Teléfono,Hay una factura que no es de mi dirección,Facturación,,MEDIA
+37,2026-09-15,Chat,Quiero contratar internet para mi casa nueva,Ventas,,MEDIA
+38,2026-09-15,Correo,¿Cuánto cuesta el plan de 300 megas?,Ventas,,BAJA
+39,2026-09-15,App móvil,Estoy interesado en un plan para mi restaurante,Ventas,,MEDIA
+40,2026-09-15,Web,Quisiera saber qué planes hay disponibles,Ventas,,BAJA
+41,2026-09-15,App móvil,¿Tienen ofertas con televisión incluida?,Ventas,,BAJA
+42,2026-09-15,Teléfono,Quiero subir a un plan más rápido,Ventas,,MEDIA
+43,2026-09-15,App móvil,Necesito contratar el servicio para mi oficina la próxima semana,Ventas,,MEDIA
+44,2026-09-15,Correo,¿Hay cobertura en el barrio Los Alpes?,Ventas,,BAJA
+45,2026-09-15,Web,Me pueden llamar para explicarme los planes,Ventas,,BAJA
+46,2026-09-15,App móvil,Quiero cambiarme de plan por uno más económico,Ventas,,MEDIA
+47,2026-09-15,App móvil,¿Qué descuentos tienen para estudiantes?,Ventas,,BAJA
+48,2026-09-15,Correo,Necesito contratar tres líneas para mi negocio,Ventas,,MEDIA
+49,2026-09-15,Teléfono,El técnico nunca llegó a la visita que me programaron,Instalaciones,,ALTA
+50,2026-09-15,Web,Quiero que me instalen el internet esta semana,Instalaciones,,MEDIA
+51,2026-09-15,App móvil,cuando viene el tecnico a instalarme el servicio,Instalaciones,,BAJA
+52,2026-09-15,Web,Dejaron la instalación sin terminar y hay cables por todo lado,Instalaciones,,ALTA
+53,2026-09-15,App móvil,Necesito mover mi servicio a mi nueva casa,Instalaciones,,MEDIA
+54,2026-09-15,Web,Quiero cambiar la hora de la cita del técnico,Instalaciones,,BAJA
+55,2026-09-15,App móvil,Me confirmaron la instalación y nadie me ha contactado en diez días,Instalaciones,,ALTA
+56,2026-09-15,Correo,¿Qué necesito para que me instalen la fibra?,Instalaciones,,BAJA
+57,2026-09-15,Chat,Quiero un punto de red adicional en mi habitación,Instalaciones,,BAJA
+58,2026-09-15,App móvil,El técnico vino pero no tenía los equipos,Instalaciones,,MEDIA
+59,2026-09-15,Chat,Necesito agendar una visita técnica,Instalaciones,,MEDIA
+60,2026-09-15,Teléfono,Cancelaron mi instalación sin avisarme,Instalaciones,,ALTA
+61,2026-09-15,Chat,Quiero cancelar el servicio,Cancelaciones,,MEDIA
+62,2026-09-15,App móvil,Deseo terminar mi contrato porque me mudo,Cancelaciones,,MEDIA
+63,2026-09-15,Chat,¿Cómo hago para dar de baja el internet?,Cancelaciones,,BAJA
+64,2026-09-15,Teléfono,Necesito cancelar ya porque el servicio no funciona nunca,Cancelaciones,,ALTA
+65,2026-09-15,Teléfono,¿Hay penalidad si cancelo ahora?,Cancelaciones,,BAJA
+66,2026-09-15,Correo,Quiero retirar la televisión de mi plan,Cancelaciones,,MEDIA
+67,2026-09-15,Correo,Cancelen mi cuenta antes de la próxima facturación por favor,Cancelaciones,,ALTA
+68,2026-09-15,Correo,Ya no quiero el servicio,Cancelaciones,,MEDIA
+69,2026-09-15,Web,Me voy del país y necesito cancelar,Cancelaciones,,MEDIA
+70,2026-09-15,App móvil,Solicito la cancelación de mi línea,Cancelaciones,,MEDIA
+71,2026-09-15,Teléfono,Quiero saber qué documentos piden para cancelar,Cancelaciones,,BAJA
+72,2026-09-15,App móvil,"Voy a cambiar de operador, ¿cómo cancelo?",Cancelaciones,,BAJA
+73,2026-09-15,Chat,"Estoy muy molesto con el servicio, quiero poner un reclamo",Reclamos,,MEDIA
+74,2026-09-15,Teléfono,Es la tercera vez que reporto la misma falla y nadie responde,Reclamos,,CRITICA
+75,2026-09-15,Chat,El asesor me atendió muy mal,Reclamos,,ALTA
+76,2026-09-15,Teléfono,Mi reclamo lleva dos semanas sin respuesta,Reclamos,,CRITICA
+77,2026-09-15,App móvil,Quiero quejarme por la demora para atenderme,Reclamos,,MEDIA
+78,2026-09-15,Web,No estoy satisfecho con lo que me vendieron,Reclamos,,MEDIA
+79,2026-09-15,Web,Me prometieron una devolución y no la han hecho,Reclamos,,ALTA
+80,2026-09-15,App móvil,El técnico dañó la pared de mi casa,Reclamos,,ALTA
+81,2026-09-15,Chat,Quiero dejar constancia de mi inconformidad,Reclamos,,MEDIA
+82,2026-09-15,Correo,La línea de atención nunca contesta,Reclamos,,MEDIA
+83,2026-09-15,Teléfono,Nadie me ha dado solución a mi caso desde hace un mes,Reclamos,,CRITICA
+84,2026-09-15,Correo,Me parece pésimo el servicio al cliente,Reclamos,,MEDIA
+85,2026-09-15,Chat,¿Cuál es el horario de la oficina?,Solicitudes de información,,BAJA
+86,2026-09-15,Chat,¿Puedo pagar con Nequi?,Solicitudes de información,Medios de pago,BAJA
+87,2026-09-15,Web,¿En qué bancos puedo pagar mi factura?,Solicitudes de información,Medios de pago,BAJA
+88,2026-09-15,Web,¿Cómo puedo ver mi factura en línea?,Solicitudes de información,,BAJA
+89,2026-09-15,App móvil,¿Qué números de contacto tienen?,Solicitudes de información,,BAJA
+90,2026-09-15,App móvil,¿Cómo cambio el nombre del titular?,Solicitudes de información,,BAJA
+91,2026-09-15,Teléfono,¿Puedo pagar en un corresponsal bancario?,Solicitudes de información,Medios de pago,BAJA
+92,2026-09-15,Teléfono,Quisiera saber cómo funciona la garantía de los equipos,Solicitudes de información,,BAJA
+93,2026-09-15,Teléfono,¿Tienen servicio los domingos?,Solicitudes de información,,BAJA
+94,2026-09-15,App móvil,¿Cuánto tiempo dura el contrato?,Solicitudes de información,,BAJA
+95,2026-09-15,Chat,¿Se puede pagar con tarjeta de crédito?,Solicitudes de información,Medios de pago,BAJA
+96,2026-09-15,App móvil,¿Cómo actualizo mi dirección de correo?,Solicitudes de información,,BAJA
+97,2026-09-15,Chat,¿Dónde queda la oficina más cercana?,Solicitudes de información,,BAJA
+98,2026-09-15,Web,¿Puedo pagar la factura por PSE?,Solicitudes de información,Medios de pago,BAJA

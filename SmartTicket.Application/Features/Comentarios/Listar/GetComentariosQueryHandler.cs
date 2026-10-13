@@ -18,9 +18,8 @@ public class GetComentariosQueryHandler(
         var solicitud = await _solicitudRepository.GetByIdAsync(request.SolicitudId)
             ?? throw new RecursoNoEncontradoException("La solicitud no existe.");
 
-        // Un cliente solo ve la conversación de sus propias solicitudes
-        if (request.Rol == RolesSistema.Cliente && solicitud.ClienteId != request.UsuarioId)
-            throw new AccesoDenegadoException("Solo puedes ver los comentarios de tus propias solicitudes.");
+        if (!PermisosSolicitud.PuedeVer(request.Rol, request.UsuarioId, solicitud.ClienteId, solicitud.UsuarioAsignadoId))
+            throw new AccesoDenegadoException("No tienes permiso para ver esta solicitud.");
 
         return await _comentarioRepository.ListarPorSolicitudAsync(request.SolicitudId);
     }

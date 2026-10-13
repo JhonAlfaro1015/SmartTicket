@@ -12,6 +12,8 @@ using SmartTicket.Application.Features.Solicitudes.Asignar;
 using SmartTicket.Application.Features.Solicitudes.Create;
 using SmartTicket.Application.Features.Solicitudes.Query;
 using System.Security.Claims;
+using SmartTicket.Application.Features.Solicitudes.Lectura;
+using SmartTicket.Application.Features.Solicitudes.Historial;
 
 namespace SmartTicket.Api.Controllers;
 
@@ -34,19 +36,45 @@ public class SolicitudesController(IMediator mediator, IMapper mapper) : Control
         return CreatedAtAction(nameof(GetById), new { id = result.SolicitudId }, result);
     }
 
-    [HttpGet("{id}")]
-    [Authorize(Roles = "Administrador,Agente,Supervisor")]
-    public async Task<ActionResult<SolicitudResponseDto>> GetById(long id)
+    [HttpGet]
+    [Authorize(Roles = RolesSistema.Personal)]
+    public async Task<ActionResult<IEnumerable<SolicitudDetalleDto>>> GetAll(
+        [FromQuery] int? estadoId, [FromQuery] int? prioridadId)
     {
-        var result = await _mediator.Send(new GetSolicitudByIdQuery(id));
-        return result is null ? NotFound() : Ok(result);
+        var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var rol = User.FindFirstValue(ClaimTypes.Role)!;
+
+        // El alcance (todas / solo las asignadas) lo decide el handler según el rol
+        var result = await _mediator.Send(new GetSolicitudesDetalleQuery(estadoId, prioridadId, usuarioId, rol));
+        return Ok(result);
     }
 
-    [HttpGet]
-    [Authorize(Roles = "Administrador,Agente,Supervisor")]
-    public async Task<ActionResult<IEnumerable<SolicitudResponseDto>>> GetAll([FromQuery] int? estadoId, [FromQuery] int? prioridadId)
+    [HttpGet("mias")]
+    [Authorize(Roles = RolesSistema.Cliente)]
+    public async Task<ActionResult<IEnumerable<SolicitudDetalleDto>>> Mias()
     {
-        var result = await _mediator.Send(new GetSolicitudesQuery(estadoId, prioridadId));
+        var clienteId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var result = await _mediator.Send(new GetSolicitudesDetalleQuery(null, null, clienteId, RolesSistema.Cliente));
+        return Ok(result);
+    }
+
+    [HttpGet("{id:long}/historial")]
+    public async Task<ActionResult<IEnumerable<HistorialEstadoDto>>> Historial(long id)
+    {
+        var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var rol = User.FindFirstValue(ClaimTypes.Role)!;
+
+        var result = await _mediator.Send(new GetHistorialQuery(id, usuarioId, rol));
+        return Ok(result);
+    }
+
+    [HttpGet("{id:long}")]
+    public async Task<ActionResult<SolicitudDetalleDto>> GetById(long id)
+    {
+        var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var rol = User.FindFirstValue(ClaimTypes.Role)!;
+
+        var result = await _mediator.Send(new GetSolicitudDetalleQuery(id, usuarioId, rol));
         return Ok(result);
     }
 
@@ -69,14 +97,6 @@ public class SolicitudesController(IMediator mediator, IMapper mapper) : Control
         return NoContent();
     }
 
-    [HttpGet("mias")]
-    [Authorize(Roles = "Cliente")]
-    public async Task<ActionResult<IEnumerable<SolicitudResponseDto>>> Mias()
-    {
-        var clienteId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        var result = await _mediator.Send(new GetSolicitudesPorClienteQuery(clienteId));
-        return Ok(result);
-    }
 
     [HttpGet("{id}/comentarios")]
     public async Task<ActionResult<IEnumerable<ComentarioDto>>> GetComentarios(long id)

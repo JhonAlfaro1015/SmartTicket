@@ -1,5 +1,6 @@
 ﻿using Microsoft.ML;
 using Microsoft.ML.Data;
+using SmartTicket.Application.Common;
 using SmartTicket.Application.Services.Clasificacion.ClasificacionML;
 
 namespace SmartTicket.Infrastructure.MachineLearning;
@@ -10,40 +11,43 @@ internal static class RutasModelo
     public static string Prioridad(string directorio) => Path.Combine(directorio, "modelo_prioridad.zip");
 }
 
-public class EntrenadorModeloML : IEntrenadorModeloML
+internal class FilaEvaluada
 {
-    private readonly string _directorioModelos;
+    public string Texto { get; set; } = null!;
+    public string Categoria { get; set; } = null!;
+    public string Prioridad { get; set; } = null!;
 
-    public EntrenadorModeloML(string directorioModelos)
-    {
-        _directorioModelos = directorioModelos;
-    }
+    [ColumnName("PredictedLabel")]
+    public string Predicha { get; set; } = null!;
+}
 
-    public ResultadoEntrenamiento EntrenarDesdeCsv(string rutaEntrenamiento, string? rutaValidacion = null)
+public class EntrenadorModeloML(string directorioModelos) : IEntrenadorModeloML
+{
+    private readonly string _directorioModelos = directorioModelos;
+
+    public ResultadoEntrenamiento EntrenarDesdeCsv(string rutaEntrenamiento, IReadOnlyList<string> rutasValidacion)
     {
         var mlContext = new MLContext(seed: 42);
 
         var entrenamiento = Cargar(mlContext, rutaEntrenamiento);
-        IDataView? validacion = !string.IsNullOrEmpty(rutaValidacion) && File.Exists(rutaValidacion)
-            ? Cargar(mlContext, rutaValidacion)
-            : null;
+        var validaciones = rutasValidacion
+            .Where(File.Exists)
+            .Select(ruta => (Nombre: Path.GetFileName(ruta), Datos: Cargar(mlContext, ruta)))
+            .ToList();
 
-        var categoria = EntrenarYGuardar(
-            mlContext, entrenamiento, validacion,
-            nameof(SolicitudTextoInput.Categoria), RutasModelo.Categoria(_directorioModelos));
+        var categoria = EntrenarYEvaluar(
+            mlContext, entrenamiento, validaciones,
+            nameof(SolicitudTextoInput.Categoria), RutasModelo.Categoria(_directorioModelos), ordenOrdinal: null);
 
-        var prioridad = EntrenarYGuardar(
-            mlContext, entrenamiento, validacion,
-            nameof(SolicitudTextoInput.Prioridad), RutasModelo.Prioridad(_directorioModelos));
+        var prioridad = EntrenarYEvaluar(
+            mlContext, entrenamiento, validaciones,
+            nameof(SolicitudTextoInput.Prioridad), RutasModelo.Prioridad(_directorioModelos),
+            ordenOrdinal: ConstantesML.OrdenPrioridad);
 
         return new ResultadoEntrenamiento(
+            mlContext.Data.CreateEnumerable<SolicitudTextoInput>(entrenamiento, reuseRowObject: false).Count(),
             categoria,
-            prioridad,
-            Contar(mlContext, entrenamiento),
-            validacion is null ? 0 : Contar(mlContext, validacion),
-            validacion is null
-                ? "División aleatoria 80/20 (puede salir inflada con datos generados)"
-                : "Archivo de validación independiente");
+            prioridad);
     }
 
     private static IDataView Cargar(MLContext mlContext, string ruta) =>
@@ -51,36 +55,72 @@ public class EntrenadorModeloML : IEntrenadorModeloML
             path: ruta,
             hasHeader: true,
             separatorChar: ',',
-            allowQuoting: true);   // necesario: hay textos con comas dentro
+            allowQuoting: true);   // hay textos con comas dentro
 
-    private static int Contar(MLContext mlContext, IDataView datos) =>
-        mlContext.Data.CreateEnumerable<SolicitudTextoInput>(datos, reuseRowObject: false).Count();
-
-    private static MetricasModelo EntrenarYGuardar(
-        MLContext mlContext, IDataView entrenamiento, IDataView? validacion,
-        string columnaEtiqueta, string rutaModelo)
+    private static List<MetricasValidacion> EntrenarYEvaluar(
+        MLContext mlContext,
+        IDataView entrenamiento,
+        List<(string Nombre, IDataView Datos)> validaciones,
+        string columnaEtiqueta,
+        string rutaModelo,
+        string[]? ordenOrdinal)
     {
         var pipeline = mlContext.Transforms.Conversion.MapValueToKey("Label", columnaEtiqueta)
             .Append(mlContext.Transforms.Text.FeaturizeText("Features", nameof(SolicitudTextoInput.Texto)))
             .Append(mlContext.MulticlassClassification.Trainers.SdcaMaximumEntropy())
             .Append(mlContext.Transforms.Conversion.MapKeyToValue("PredictedLabel"));
 
-        var modeloFinal = pipeline.Fit(entrenamiento);
+        var modelo = pipeline.Fit(entrenamiento);
+        mlContext.Model.Save(modelo, entrenamiento.Schema, rutaModelo);
 
-        MulticlassClassificationMetrics metricas;
-        if (validacion is not null)
+        var resultados = new List<MetricasValidacion>();
+
+        foreach (var (nombre, datos) in validaciones)
         {
-            metricas = mlContext.MulticlassClassification.Evaluate(modeloFinal.Transform(validacion));
-        }
-        else
-        {
-            var split = mlContext.Data.TrainTestSplit(entrenamiento, testFraction: 0.2, seed: 42);
-            var modeloEvaluacion = pipeline.Fit(split.TrainSet);
-            metricas = mlContext.MulticlassClassification.Evaluate(modeloEvaluacion.Transform(split.TestSet));
+            var predicciones = modelo.Transform(datos);
+            var metricas = mlContext.MulticlassClassification.Evaluate(predicciones);
+
+            var filas = mlContext.Data
+                .CreateEnumerable<FilaEvaluada>(predicciones, reuseRowObject: false)
+                .ToList();
+
+            var errores = new List<ErrorClasificacion>();
+            var dentroDeUnNivel = 0;
+
+            foreach (var fila in filas)
+            {
+                var esperada = columnaEtiqueta == nameof(SolicitudTextoInput.Categoria)
+                    ? fila.Categoria
+                    : fila.Prioridad;
+
+                if (esperada != fila.Predicha)
+                    errores.Add(new ErrorClasificacion(fila.Texto, esperada, fila.Predicha));
+
+                if (Distancia(ordenOrdinal, esperada, fila.Predicha) <= 1)
+                    dentroDeUnNivel++;
+            }
+
+            resultados.Add(new MetricasValidacion(
+                nombre,
+                filas.Count,
+                metricas.MicroAccuracy,
+                metricas.MacroAccuracy,
+                metricas.LogLoss,
+                filas.Count == 0 ? 0 : (double)dentroDeUnNivel / filas.Count,
+                errores));
         }
 
-        mlContext.Model.Save(modeloFinal, entrenamiento.Schema, rutaModelo);
+        return resultados;
+    }
 
-        return new MetricasModelo(metricas.MicroAccuracy, metricas.MacroAccuracy, metricas.LogLoss);
+    // Distancia entre dos etiquetas ordinales. Sin orden (categoría): 0 si coinciden, "infinita" si no.
+    private static int Distancia(string[]? orden, string a, string b)
+    {
+        if (a == b) return 0;
+        if (orden is null) return int.MaxValue;
+
+        var ia = Array.IndexOf(orden, a);
+        var ib = Array.IndexOf(orden, b);
+        return ia < 0 || ib < 0 ? int.MaxValue : Math.Abs(ia - ib);
     }
 }

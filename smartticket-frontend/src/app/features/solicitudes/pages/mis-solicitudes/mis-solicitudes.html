@@ -1,6 +1,6 @@
-<div class="page-container page-container--cliente">
-  <div class="page-content">
-    <header class="page-header">
+<div class="pagina">
+  <div class="contenido">
+    <header class="encabezado">
       <div>
         <h1>Hola, {{ usuario()?.nombre }}</h1>
         <p>Portal de solicitudes</p>
@@ -10,53 +10,48 @@
       </button>
     </header>
  
-    <mat-card class="form-card">
+    <mat-card class="nueva">
       <h2>Nueva solicitud</h2>
       <form [formGroup]="formulario" (ngSubmit)="onSubmit()">
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline" class="completo">
           <mat-label>Describe tu solicitud</mat-label>
           <textarea matInput rows="3" formControlName="textoOriginal"
-            placeholder="Ej: Desde ayer no tengo internet y ya reinicié el router varias veces."></textarea>
-          @if (formulario.get('textoOriginal')?.hasError('required') && formulario.get('textoOriginal')?.touched) {
+                    placeholder="Ej: Desde ayer no tengo internet y ya reinicié el router varias veces."></textarea>
+          @if (formulario.controls.textoOriginal.hasError('required') && formulario.controls.textoOriginal.touched) {
             <mat-error>Describe tu solicitud</mat-error>
           }
-          @if (formulario.get('textoOriginal')?.hasError('minlength') && formulario.get('textoOriginal')?.touched) {
+          @if (formulario.controls.textoOriginal.hasError('minlength') && formulario.controls.textoOriginal.touched) {
             <mat-error>Danos un poco más de detalle (mínimo 10 caracteres)</mat-error>
           }
         </mat-form-field>
- 
         <button mat-flat-button color="primary" type="submit" [disabled]="enviando()">
-          @if (enviando()) {
-            <mat-spinner diameter="20"></mat-spinner>
-          } @else {
-            Enviar solicitud
-          }
+          @if (enviando()) { <mat-spinner diameter="20"></mat-spinner> } @else { Enviar solicitud }
         </button>
       </form>
     </mat-card>
  
-    <h2 class="list-title">Mis solicitudes</h2>
- 
-    @if (cargandoLista()) {
-      <div class="loading-center"><mat-spinner diameter="32"></mat-spinner></div>
+    @if (cargando()) {
+      <div class="cargando"><mat-spinner diameter="36"></mat-spinner></div>
     } @else if (solicitudes().length === 0) {
-      <p class="empty-state">Todavía no has enviado ninguna solicitud.</p>
+      <p class="vacio">Todavía no has enviado ninguna solicitud.</p>
     } @else {
-      <div class="solicitudes-list">
-        @for (s of solicitudes(); track s.solicitudId) {
-          <mat-card class="solicitud-card">
-            <div class="solicitud-header">
-              <span class="fecha">{{ s.fechaCreacion | date: 'dd/MM/yyyy HH:mm' }}</span>
-              <span class="tag tag--prioridad">{{ catalogos.nombrePrioridad(s.prioridadId) }}</span>
-            </div>
-            <p class="texto">{{ s.textoOriginal }}</p>
-            <div class="solicitud-footer">
-              <span class="tag">{{ catalogos.nombreCategoria(s.categoriaId) }}</span>
-              <span class="tag tag--estado">{{ catalogos.nombreEstado(s.estadoId) }}</span>
-            </div>
-          </mat-card>
+      <h2 class="seccion">En curso <span class="contador">{{ enCurso().length }}</span></h2>
+      <div class="lista">
+        @for (s of enCurso(); track s.solicitudId) {
+          <app-solicitud-card modo="cliente" [solicitud]="s" [estados]="catalogos.estados()" (abrir)="abrir(s)" />
+        } @empty {
+          <p class="vacio">No tienes solicitudes en curso.</p>
         }
       </div>
+ 
+      @if (finalizadas().length > 0) {
+        <h2 class="seccion seccion--final">Finalizadas <span class="contador">{{ finalizadas().length }}</span></h2>
+        <div class="lista">
+          @for (s of finalizadas(); track s.solicitudId) {
+            <app-solicitud-card modo="cliente" [solicitud]="s" [estados]="catalogos.estados()" (abrir)="abrir(s)" />
+          }
+        </div>
+      }
     }
   </div>
 </div>

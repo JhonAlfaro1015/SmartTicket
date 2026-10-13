@@ -17,11 +17,16 @@ public class MlController(IEntrenadorModeloML entrenador, IWebHostEnvironment en
     {
         var carpetaDatos = Path.Combine(_environment.ContentRootPath, "Data");
         var rutaEntrenamiento = Path.Combine(carpetaDatos, "solicitudes_entrenamiento.csv");
-        var rutaValidacion = Path.Combine(carpetaDatos, "solicitudes_validacion.csv");
+        var carpetaValidacion = Path.Combine(carpetaDatos, "Validacion");
 
         if (!System.IO.File.Exists(rutaEntrenamiento))
             return NotFound(new { message = $"No se encontró el archivo de entrenamiento en: {rutaEntrenamiento}" });
 
-        return Ok(_entrenador.EntrenarDesdeCsv(rutaEntrenamiento, rutaValidacion));
+        var validaciones = Directory.Exists(carpetaValidacion) ? Directory.GetFiles(carpetaValidacion, "*.csv").ToList() : [];
+
+        if (validaciones.Count == 0)
+            return BadRequest(new { message = $"Coloca al menos un CSV de validación en: {carpetaValidacion}" });
+
+        return Ok(_entrenador.EntrenarDesdeCsv(rutaEntrenamiento, validaciones));
     }
 }

@@ -1,0 +1,124 @@
+<div class="pagina">
+  <div class="contenido">
+    <button mat-button class="volver" (click)="volver()"><mat-icon>arrow_back</mat-icon> Volver</button>
+ 
+    @if (cargando()) {
+      <div class="cargando"><mat-spinner diameter="40"></mat-spinner></div>
+    } @else if (error(); as mensaje) {
+      <mat-card class="aviso aviso--error"><mat-icon>lock</mat-icon>{{ mensaje }}</mat-card>
+    } @else if (solicitud(); as s) {
+ 
+      <header class="cabecera" [class.cabecera--final]="s.estadoEsFinal">
+        <div>
+          <span class="id">Solicitud #{{ s.solicitudId }}</span>
+          <h1>{{ s.categoriaNombre }}</h1>
+          <p class="meta">Área: {{ s.areaNombre }}@if (s.subcategoriaNombre) { · {{ s.subcategoriaNombre }} }</p>
+        </div>
+        <div class="indicadores">
+          <app-prioridad-badge [nombre]="s.prioridadNombre" [grande]="true" />
+          <app-estado-badge [nombre]="s.estadoNombre" [grande]="true" />
+          <app-score-meter [valor]="s.puntuacion" />
+        </div>
+      </header>
+ 
+      <div class="rejilla">
+        <section class="columna">
+          <mat-card class="panel">
+            <h2>Progreso</h2>
+            <app-estado-stepper [estados]="catalogos.estados()" [estadoActualId]="s.estadoId"
+                                [siguientes]="s.estadosSiguientes" (cambiar)="cambiarEstado($event)" />
+            @if (s.puedeAsignar) {
+              <div class="bloque">
+                <app-asignacion-agente [agentes]="agentes()" [agenteActualId]="s.usuarioAsignadoId"
+                                       (asignar)="asignar($event)" />
+              </div>
+            }
+          </mat-card>
+ 
+          <mat-card class="panel">
+            <h2>Datos</h2>
+            <dl class="datos">
+              @if (!esCliente()) {
+                <dt>Cliente</dt><dd>{{ s.clienteNombre }}</dd>
+              }
+              <dt>Atiende</dt>
+              <dd>
+                @if (s.agenteNombre; as agente) {
+                  <span class="avatar">{{ iniciales(agente) }}</span>{{ agente }}
+                } @else {
+                  <span class="sin-asignar">Sin asignar</span>
+                }
+              </dd>
+              <dt>Creada</dt><dd>{{ aUtc(s.fechaCreacion) | date: 'dd/MM/yyyy HH:mm' }}</dd>
+              @if (s.fechaLimiteSLA && !s.estadoEsFinal) {
+                <dt>Tiempo límite</dt>
+                <dd><app-sla-chip [fechaLimite]="s.fechaLimiteSLA" [esFinal]="s.estadoEsFinal" /></dd>
+              }
+              @if (s.fechaCierre) {
+                <dt>Finalizada</dt><dd>{{ aUtc(s.fechaCierre) | date: 'dd/MM/yyyy HH:mm' }}</dd>
+              }
+            </dl>
+          </mat-card>
+        </section>
+ 
+        <section class="columna">
+          <mat-card class="panel conversacion">
+            <h2>Seguimiento y comentarios</h2>
+ 
+            <ol class="timeline">
+              @for (item of eventos(); track $index) {
+                @if (item.tipo === 'sistema') {
+                  <li class="evento">
+                    <mat-icon>swap_horiz</mat-icon>
+                    <span>
+                      <strong>{{ item.autor }}</strong> cambió el estado
+                      @if (item.desde) { de <app-estado-badge [nombre]="item.desde" /> }
+                      a <app-estado-badge [nombre]="item.hasta ?? ''" />
+                    </span>
+                    <time>{{ aUtc(item.fecha) | date: 'dd/MM HH:mm' }}</time>
+                  </li>
+                } @else {
+                  <li class="mensaje" [class.mensaje--cliente]="item.tipo === 'cliente'"
+                      [class.mensaje--personal]="item.tipo === 'personal'">
+                    <span class="avatar">{{ iniciales(item.autor) }}</span>
+                    <div class="burbuja">
+                      <div class="burbuja-cab">
+                        <strong>{{ item.autor }}</strong>
+                        <span class="rol">{{ item.rol }}</span>
+                        <time>{{ aUtc(item.fecha) | date: 'dd/MM HH:mm' }}</time>
+                      </div>
+                      <p>{{ item.texto }}</p>
+                    </div>
+                  </li>
+                }
+              }
+            </ol>
+ 
+            @if (s.puedeComentar) {
+              <form class="compositor" [formGroup]="formulario" (ngSubmit)="publicar()">
+                <mat-form-field appearance="outline" class="completo">
+                  <mat-label>{{ esCliente() ? 'Escribe un mensaje al equipo de soporte' : 'Escribe una actualización para el cliente' }}</mat-label>
+                  <textarea matInput rows="3" formControlName="texto" [maxlength]="COMENTARIO_MAX"></textarea>
+                  <mat-hint align="end">{{ formulario.controls.texto.value.length }}/{{ COMENTARIO_MAX }}</mat-hint>
+                </mat-form-field>
+                <div class="compositor-pie">
+                  <span class="nota">
+                    {{ esCliente() ? 'El equipo de soporte verá tu mensaje.' : 'El cliente verá este comentario en el seguimiento de su solicitud.' }}
+                  </span>
+                  <button mat-flat-button color="primary" type="submit" [disabled]="formulario.invalid || enviando()">
+                    <mat-icon>send</mat-icon> Publicar
+                  </button>
+                </div>
+              </form>
+            } @else {
+              <p class="aviso aviso--info">
+                <mat-icon>info</mat-icon>
+                {{ s.estadoEsFinal ? 'Esta solicitud está finalizada y ya no admite comentarios.' : 'No tienes permiso para comentar en esta solicitud.' }}
+              </p>
+            }
+          </mat-card>
+        </section>
+      </div>
+    }
+  </div>
+</div>

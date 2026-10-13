@@ -1,27 +1,29 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { TokenService } from '../../../../core/services/token.service';
+import { MENSAJES, mensajeDeError } from '../../../../core/constants/mensajes';
+import { SolicitudDetalle } from '../../../../core/models/solicitud.models';
 import { CatalogosQueryService } from '../../../../core/services/catalogos-query.service';
+import { TokenService } from '../../../../core/services/token.service';
+import { ordenarSolicitudes } from '../../../../core/utils/ordenar-solicitudes';
+import { SolicitudCard } from '../../components/solicitud-card';
 import { SolicitudesCommandService } from '../../services/solicitudes-command.service';
 import { SolicitudesQueryService } from '../../services/solicitudes-query.service';
-import { SolicitudResponse } from '../../../../core/models/solicitud.models';
  
 @Component({
   selector: 'app-mis-solicitudes',
   standalone: true,
   imports: [
-    CommonModule, ReactiveFormsModule,
-    MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule,
-    MatIconModule, MatProgressSpinnerModule, MatSnackBarModule
+    CommonModule, ReactiveFormsModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule,
+    MatInputModule, MatProgressSpinnerModule, MatSnackBarModule, SolicitudCard
   ],
   templateUrl: './mis-solicitudes.html',
   styleUrl: './mis-solicitudes.scss'
@@ -34,12 +36,17 @@ export class MisSolicitudes implements OnInit {
   private readonly solicitudesQuery = inject(SolicitudesQueryService);
   private readonly snackBar = inject(MatSnackBar);
  
-  readonly catalogos = inject(CatalogosQueryService); // público: el template lo usa
- 
+  readonly catalogos = inject(CatalogosQueryService);
   readonly usuario = this.tokenService.usuarioActual;
-  readonly cargandoLista = signal(true);
+ 
+  readonly cargando = signal(true);
   readonly enviando = signal(false);
-  readonly solicitudes = signal<SolicitudResponse[]>([]);
+  readonly solicitudes = signal<SolicitudDetalle[]>([]);
+ 
+  readonly enCurso = computed(() =>
+    ordenarSolicitudes(this.solicitudes().filter(s => !s.estadoEsFinal), 'recientes'));
+  readonly finalizadas = computed(() =>
+    ordenarSolicitudes(this.solicitudes().filter(s => s.estadoEsFinal), 'recientes'));
  
   readonly formulario = this.fb.nonNullable.group({
     textoOriginal: ['', [Validators.required, Validators.minLength(10)]]
@@ -47,17 +54,17 @@ export class MisSolicitudes implements OnInit {
  
   ngOnInit(): void {
     this.catalogos.cargarCatalogos();
-    this.cargarMisSolicitudes();
+    this.cargar();
   }
  
-  cargarMisSolicitudes(): void {
-    this.cargandoLista.set(true);
+  cargar(): void {
+    this.cargando.set(true);
     this.solicitudesQuery.listarMias().subscribe({
-      next: (res) => {
-        this.solicitudes.set(res);
-        this.cargandoLista.set(false);
+      next: (lista) => {
+        this.solicitudes.set(lista);
+        this.cargando.set(false);
       },
-      error: () => this.cargandoLista.set(false)
+      error: () => this.cargando.set(false)
     });
   }
  
@@ -68,19 +75,22 @@ export class MisSolicitudes implements OnInit {
     }
  
     this.enviando.set(true);
- 
     this.solicitudesCommand.crear(this.formulario.getRawValue()).subscribe({
       next: () => {
         this.enviando.set(false);
         this.formulario.reset();
-        this.snackBar.open('Solicitud creada y clasificada correctamente', 'Cerrar', { duration: 4000 });
-        this.cargarMisSolicitudes();
+        this.snackBar.open(MENSAJES.solicitudCreada, 'Cerrar', { duration: 4000 });
+        this.cargar();
       },
-      error: () => {
+      error: (err) => {
         this.enviando.set(false);
-        this.snackBar.open('No fue posible crear la solicitud', 'Cerrar', { duration: 4000 });
+        this.snackBar.open(mensajeDeError(err, MENSAJES.errorCrear), 'Cerrar', { duration: 4000 });
       }
     });
+  }
+ 
+  abrir(solicitud: SolicitudDetalle): void {
+    this.router.navigate(['/mis-solicitudes', solicitud.solicitudId]);
   }
  
   cerrarSesion(): void {

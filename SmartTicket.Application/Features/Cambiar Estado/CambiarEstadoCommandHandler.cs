@@ -20,8 +20,8 @@ public class CambiarEstadoCommandHandler(
             ?? throw new RecursoNoEncontradoException("La solicitud no existe.");
 
         // El Agente solo actúa sobre lo que tiene asignado
-        if (request.Rol == RolesSistema.Agente && solicitud.UsuarioAsignadoId != request.UsuarioId)
-            throw new AccesoDenegadoException("Solo puedes cambiar el estado de las solicitudes asignadas a ti.");
+        if (!PermisosSolicitud.PuedeCambiarEstado(request.Rol, request.UsuarioId, solicitud.UsuarioAsignadoId))
+            throw new AccesoDenegadoException("No tienes permiso para cambiar el estado de esta solicitud.");
 
         var estadoActual = await _estadoRepository.GetByIdAsync(solicitud.EstadoId)
             ?? throw new RecursoNoEncontradoException("El estado actual de la solicitud no existe.");

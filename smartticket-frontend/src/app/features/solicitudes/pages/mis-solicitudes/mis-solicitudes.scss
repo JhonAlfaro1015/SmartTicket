@@ -1,61 +1,21 @@
-.page-container {
-  min-height: 100vh;
-  padding: 32px 16px;
-}
-.page-container--cliente { background: #f0faf8; }
+.pagina { min-height: 100vh; background: #f0faf8; padding: 28px 16px 48px; }
+.contenido { max-width: 860px; margin: 0 auto; }
  
-.page-content { max-width: 680px; margin: 0 auto; }
- 
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
- 
-  h1 { margin: 0; font-size: 24px; }
-  p { margin: 0; color: rgba(0,0,0,0.5); font-size: 14px; }
+.encabezado { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+  h1 { margin: 0; font-size: 26px; color: #0f172a; }
+  p { margin: 2px 0 0; color: #64748b; font-size: 14px; }
 }
  
-.form-card {
-  padding: 24px;
-  border-radius: 12px;
-  margin-bottom: 32px;
- 
-  h2 { margin-top: 0; font-size: 18px; }
-  .full-width { width: 100%; }
+.nueva { padding: 20px 24px; border-radius: 14px; margin-bottom: 28px;
+  h2 { margin: 0 0 14px; font-size: 18px; }
+  .completo { width: 100%; }
 }
  
-.list-title { font-size: 18px; margin-bottom: 16px; }
- 
-.loading-center { display: flex; justify-content: center; padding: 32px; }
-.empty-state { color: rgba(0,0,0,0.5); text-align: center; padding: 32px; }
- 
-.solicitudes-list { display: flex; flex-direction: column; gap: 12px; }
- 
-.solicitud-card {
-  padding: 16px 20px;
-  border-radius: 12px;
- 
-  .solicitud-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
- 
-    .fecha { font-size: 12px; color: rgba(0,0,0,0.5); }
-  }
- 
-  .texto { margin: 8px 0; font-size: 14px; }
- 
-  .solicitud-footer, .solicitud-header { display: flex; gap: 8px; }
- 
-  .tag {
-    font-size: 11px;
-    background: #e0f2f1;
-    color: #0f766e;
-    padding: 2px 10px;
-    border-radius: 12px;
-  }
-  .tag--estado { background: #eef2ff; color: #4338ca; }
-  .tag--prioridad { background: #fff3e0; color: #e65100; }
+.seccion { display: flex; align-items: center; gap: 8px; font-size: 16px; margin: 24px 0 12px; color: #0f172a;
+  .contador { background: #0f172a; color: #fff; border-radius: 999px; font-size: 12px; padding: 1px 9px; }
 }
+.seccion--final { color: #64748b; .contador { background: #94a3b8; } }
+ 
+.lista { display: flex; flex-direction: column; gap: 14px; }
+.cargando { display: flex; justify-content: center; padding: 48px; }
+.vacio { text-align: center; color: #64748b; padding: 24px; }

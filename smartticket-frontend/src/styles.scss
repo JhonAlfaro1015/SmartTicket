@@ -37,3 +37,31 @@ body {
   height: 100%;
 }
 /* You can add global styles to this file, and also import other style files */
+
+:root {
+  --st-nuevo-bg: #e8f0fe;     --st-nuevo-fg: #1a56db;
+  --st-proceso-bg: #fff4e0;   --st-proceso-fg: #b45309;
+  --st-resuelto-bg: #e3f6ea;  --st-resuelto-fg: #15803d;
+  --st-cerrado-bg: #eceff3;   --st-cerrado-fg: #64748b;
+  --st-cancelado-bg: #fde8e8; --st-cancelado-fg: #b91c1c;
+  --st-defecto-bg: #eef2ff;   --st-defecto-fg: #4338ca;
+ 
+  --pr-critica: #b91c1c;
+  --pr-alta: #ea580c;
+  --pr-media: #ca8a04;
+  --pr-baja: #16a34a;
+  --pr-defecto: #64748b;
+}
+ 
+.estado--nuevo     { background: var(--st-nuevo-bg);     color: var(--st-nuevo-fg); }
+.estado--proceso   { background: var(--st-proceso-bg);   color: var(--st-proceso-fg); }
+.estado--resuelto  { background: var(--st-resuelto-bg);  color: var(--st-resuelto-fg); }
+.estado--cerrado   { background: var(--st-cerrado-bg);   color: var(--st-cerrado-fg); }
+.estado--cancelado { background: var(--st-cancelado-bg); color: var(--st-cancelado-fg); }
+.estado--defecto   { background: var(--st-defecto-bg);   color: var(--st-defecto-fg); }
+ 
+.prioridad--critica { --pr-color: var(--pr-critica); }
+.prioridad--alta    { --pr-color: var(--pr-alta); }
+.prioridad--media   { --pr-color: var(--pr-media); }
+.prioridad--baja    { --pr-color: var(--pr-baja); }
+.prioridad--defecto { --pr-color: var(--pr-defecto); }

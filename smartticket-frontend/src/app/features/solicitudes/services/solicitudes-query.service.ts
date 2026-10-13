@@ -1,26 +1,28 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { SolicitudResponse } from '../../../core/models/solicitud.models';
+import { SolicitudDetalle, EventoHistorial } from '../../../core/models/solicitud.models';
  
 @Injectable({ providedIn: 'root' })
 export class SolicitudesQueryService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiUrl}/solicitudes`;
+  private readonly baseUrl = environment.apiUrl + '/solicitudes';
  
-  listarMias(): Observable<SolicitudResponse[]> {
-    return this.http.get<SolicitudResponse[]>(`${this.baseUrl}/mias`);
+  // El servidor decide el alcance según el rol (el Agente solo recibe las suyas)
+  listarTodas(): Observable<SolicitudDetalle[]> {
+    return this.http.get<SolicitudDetalle[]>(this.baseUrl);
   }
  
-  listarTodas(estadoId?: number, prioridadId?: number): Observable<SolicitudResponse[]> {
-    let params = new HttpParams();
-    if (estadoId) params = params.set('estadoId', estadoId);
-    if (prioridadId) params = params.set('prioridadId', prioridadId);
-    return this.http.get<SolicitudResponse[]>(this.baseUrl, { params });
+  listarMias(): Observable<SolicitudDetalle[]> {
+    return this.http.get<SolicitudDetalle[]>(this.baseUrl + '/mias');
   }
  
-  obtenerPorId(id: number): Observable<SolicitudResponse> {
-    return this.http.get<SolicitudResponse>(`${this.baseUrl}/${id}`);
+  obtenerPorId(id: number): Observable<SolicitudDetalle> {
+    return this.http.get<SolicitudDetalle>(this.baseUrl + '/' + id);
+  }
+ 
+  obtenerHistorial(id: number): Observable<EventoHistorial[]> {
+    return this.http.get<EventoHistorial[]>(this.baseUrl + '/' + id + '/historial');
   }
 }

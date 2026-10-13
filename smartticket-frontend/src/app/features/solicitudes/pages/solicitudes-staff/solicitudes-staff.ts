@@ -1,29 +1,34 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSelectModule } from '@angular/material/select';
+import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { TokenService } from '../../../../core/services/token.service';
+import { MENSAJES, mensajeDeError } from '../../../../core/constants/mensajes';
+import { ROLES, ROLES_GESTION } from '../../../../core/constants/roles';
+import { visualEstado } from '../../../../core/constants/visual';
+import { SolicitudDetalle } from '../../../../core/models/solicitud.models';
 import { CatalogosQueryService } from '../../../../core/services/catalogos-query.service';
+import { TokenService } from '../../../../core/services/token.service';
 import { UsuariosQueryService, UsuarioBasico } from '../../../../core/services/usuarios-query.service';
-import { SolicitudesQueryService } from '../../services/solicitudes-query.service';
+import { CriterioOrden, ordenarSolicitudes } from '../../../../core/utils/ordenar-solicitudes';
+import { normalizar } from '../../../../core/utils/texto';
+import { SolicitudCard } from '../../components/solicitud-card';
 import { SolicitudesCommandService } from '../../services/solicitudes-command.service';
-import { ClientesQueryService } from '../../services/clientes-query.service';
-import { SolicitudResponse } from '../../../../core/models/solicitud.models';
+import { SolicitudesQueryService } from '../../services/solicitudes-query.service';
  
 @Component({
   selector: 'app-solicitudes-staff',
   standalone: true,
   imports: [
-    CommonModule, FormsModule,
-    MatCardModule, MatButtonModule, MatIconModule,
-    MatSelectModule, MatFormFieldModule, MatProgressSpinnerModule, MatSnackBarModule
+    CommonModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule,
+    MatProgressSpinnerModule, MatSelectModule, MatSlideToggleModule, MatSnackBarModule, SolicitudCard
   ],
   templateUrl: './solicitudes-staff.html',
   styleUrl: './solicitudes-staff.scss'
@@ -33,127 +38,100 @@ export class SolicitudesStaff implements OnInit {
   private readonly router = inject(Router);
   private readonly solicitudesQuery = inject(SolicitudesQueryService);
   private readonly solicitudesCommand = inject(SolicitudesCommandService);
-  private readonly clientesQuery = inject(ClientesQueryService);
   private readonly usuariosQuery = inject(UsuariosQueryService);
   private readonly snackBar = inject(MatSnackBar);
  
-  readonly catalogos = inject(CatalogosQueryService); // público: el template lo usa
+  readonly catalogos = inject(CatalogosQueryService);
+  readonly visualEstado = visualEstado;
  
   readonly usuario = this.tokenService.usuarioActual;
-  readonly puedeAsignar = computed(() => {
-    const rol = this.usuario()?.rol;
-    return rol === 'Administrador' || rol === 'Supervisor';
-  });
-  readonly puedeVerDashboard = this.puedeAsignar; // mismos roles
+  readonly esGestion = computed(() => ROLES_GESTION.includes(this.usuario()?.rol ?? ''));
+  readonly esAgente = computed(() => this.usuario()?.rol === ROLES.Agente);
  
   readonly cargando = signal(true);
-  readonly solicitudes = signal<SolicitudResponse[]>([]);
+  readonly solicitudes = signal<SolicitudDetalle[]>([]);
   readonly agentes = signal<UsuarioBasico[]>([]);
-  readonly clientesCache = signal<Map<number, string>>(new Map());
  
+  readonly busqueda = signal('');
   readonly filtroEstadoId = signal<number | null>(null);
   readonly filtroPrioridadId = signal<number | null>(null);
+  readonly orden = signal<CriterioOrden>('urgencia');
+  readonly mostrarFinalizadas = signal(true);
  
-  readonly agenteSeleccionado = signal<Record<number, number>>({});
+  private readonly filtradas = computed(() => {
+    const texto = normalizar(this.busqueda().trim());
+    const estadoId = this.filtroEstadoId();
+    const prioridadId = this.filtroPrioridadId();
+ 
+    return this.solicitudes().filter(s =>
+      (estadoId === null || s.estadoId === estadoId) &&
+      (prioridadId === null || s.prioridadId === prioridadId) &&
+      (texto === '' ||
+        normalizar(s.solicitudId + ' ' + s.clienteNombre + ' ' + s.textoOriginal + ' ' + s.categoriaNombre)
+          .includes(texto)));
+  });
+ 
+  readonly pendientes = computed(() =>
+    ordenarSolicitudes(this.filtradas().filter(s => !s.estadoEsFinal), this.orden()));
+ 
+  readonly finalizadas = computed(() =>
+    ordenarSolicitudes(this.filtradas().filter(s => s.estadoEsFinal), 'recientes'));
+ 
+  readonly conteoPorEstado = computed(() =>
+    this.catalogos.estados().map(estado => ({
+      estado,
+      cantidad: this.solicitudes().filter(s => s.estadoId === estado.estadoId).length
+    })));
  
   ngOnInit(): void {
     this.catalogos.cargarCatalogos();
-    this.cargarSolicitudes();
+    this.cargar();
  
-    if (this.puedeAsignar()) {
-      this.usuariosQuery.listarPorRol('Agente').subscribe(r => this.agentes.set(r));
+    if (this.esGestion()) {
+      this.usuariosQuery.listarPorRol(ROLES.Agente).subscribe(a => this.agentes.set(a));
     }
   }
  
-  cargarSolicitudes(): void {
+  cargar(): void {
     this.cargando.set(true);
-    const estadoId = this.filtroEstadoId() ?? undefined;
-    const prioridadId = this.filtroPrioridadId() ?? undefined;
- 
-    this.solicitudesQuery.listarTodas(estadoId, prioridadId).subscribe({
-      next: (res) => {
-        this.solicitudes.set(res);
+    this.solicitudesQuery.listarTodas().subscribe({
+      next: (lista) => {
+        this.solicitudes.set(lista);
         this.cargando.set(false);
       },
-      error: () => this.cargando.set(false)
+      error: (err) => {
+        this.cargando.set(false);
+        this.avisar(mensajeDeError(err, MENSAJES.errorCargar));
+      }
     });
   }
  
-  aplicarFiltros(): void {
-    this.cargarSolicitudes();
+  alternarEstado(estadoId: number): void {
+    this.filtroEstadoId.update(actual => (actual === estadoId ? null : estadoId));
   }
  
-  limpiarFiltros(): void {
-    this.filtroEstadoId.set(null);
-    this.filtroPrioridadId.set(null);
-    this.cargarSolicitudes();
-  }
- 
-  nombreCliente(clienteId: number): string {
-    const cache = this.clientesCache();
-    if (!cache.has(clienteId)) {
-      this.clientesQuery.obtenerPorId(clienteId).subscribe({
-        next: (c) => {
-          const nuevo = new Map(this.clientesCache());
-          nuevo.set(clienteId, c.nombre);
-          this.clientesCache.set(nuevo);
-        },
-        error: () => {
-          const nuevo = new Map(this.clientesCache());
-          nuevo.set(clienteId, `Cliente #${clienteId}`);
-          this.clientesCache.set(nuevo);
-        }
-      });
-      return 'Cargando...';
-    }
-    return cache.get(clienteId)!;
-  }
- 
-  nombreAgente(usuarioId: number): string {
-    return this.agentes().find(a => a.usuarioId === usuarioId)?.nombre ?? `Agente #${usuarioId}`;
-  }
- 
-  // El backend devuelve las fechas en UTC pero sin la "Z" al leerlas de la BD,
-  // y el navegador las interpretaba como hora local (5 horas de diferencia en Colombia).
-  aUtc(fecha: string): string {
-    return /(Z|[+-]\d{2}:\d{2})$/i.test(fecha) ? fecha : `${fecha}Z`;
-  }
- 
-  cambiarEstado(solicitud: SolicitudResponse, nuevoEstadoId: number): void {
-    const usuarioId = this.usuario()?.id;
-    if (!usuarioId) return;
- 
-    this.solicitudesCommand.cambiarEstado(solicitud.solicitudId, { nuevoEstadoId, usuarioId }).subscribe({
+  onCambiarEstado(solicitud: SolicitudDetalle, nuevoEstadoId: number): void {
+    this.solicitudesCommand.cambiarEstado(solicitud.solicitudId, { nuevoEstadoId }).subscribe({
       next: () => {
-        this.snackBar.open(
-          `Solicitud #${solicitud.solicitudId} → ${this.catalogos.nombreEstado(nuevoEstadoId)}`,
-          'Cerrar', { duration: 3000 });
-        this.cargarSolicitudes();
+        this.avisar(MENSAJES.estadoActualizado(solicitud.solicitudId, this.nombreEstado(nuevoEstadoId)));
+        this.cargar();
       },
-      error: (err) => this.snackBar.open(
-        err.error?.message ?? 'No fue posible actualizar el estado', 'Cerrar', { duration: 5000 })
+      error: (err) => this.avisar(mensajeDeError(err, MENSAJES.errorEstado))
     });
   }
  
-  guardarAsignacion(solicitud: SolicitudResponse): void {
-    const usuarioAsignadoId = this.agenteSeleccionado()[solicitud.solicitudId];
-    if (!usuarioAsignadoId) {
-      this.snackBar.open('Selecciona un agente antes de asignar', 'Cerrar', { duration: 3000 });
-      return;
-    }
- 
+  onAsignar(solicitud: SolicitudDetalle, usuarioAsignadoId: number): void {
     this.solicitudesCommand.asignar(solicitud.solicitudId, { usuarioAsignadoId }).subscribe({
       next: () => {
-        this.snackBar.open('Solicitud asignada', 'Cerrar', { duration: 3000 });
-        this.cargarSolicitudes();
+        this.avisar(MENSAJES.asignada);
+        this.cargar();
       },
-      error: (err) => this.snackBar.open(
-        err.error?.message ?? 'No fue posible asignar la solicitud', 'Cerrar', { duration: 5000 })
+      error: (err) => this.avisar(mensajeDeError(err, MENSAJES.errorAsignar))
     });
   }
  
-  seleccionarAgente(solicitudId: number, usuarioId: number): void {
-    this.agenteSeleccionado.update(m => ({ ...m, [solicitudId]: usuarioId }));
+  abrir(solicitud: SolicitudDetalle): void {
+    this.router.navigate(['/solicitudes', solicitud.solicitudId]);
   }
  
   irADashboard(): void {
@@ -163,5 +141,13 @@ export class SolicitudesStaff implements OnInit {
   cerrarSesion(): void {
     this.tokenService.cerrarSesion();
     this.router.navigate(['/auth/login']);
+  }
+ 
+  private nombreEstado(estadoId: number): string {
+    return this.catalogos.nombreEstado(estadoId);
+  }
+ 
+  private avisar(mensaje: string): void {
+    this.snackBar.open(mensaje, 'Cerrar', { duration: 4000 });
   }
 }
