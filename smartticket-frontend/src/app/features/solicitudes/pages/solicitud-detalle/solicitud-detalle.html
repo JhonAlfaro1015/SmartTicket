@@ -50,9 +50,9 @@
                 }
               </dd>
               <dt>Creada</dt><dd>{{ aUtc(s.fechaCreacion) | date: 'dd/MM/yyyy HH:mm' }}</dd>
-              @if (s.fechaLimiteSLA && !s.estadoEsFinal) {
+              @if (s.fechaLimiteSLA && s.slaActivo) {
                 <dt>Tiempo límite</dt>
-                <dd><app-sla-chip [fechaLimite]="s.fechaLimiteSLA" [esFinal]="s.estadoEsFinal" /></dd>
+                <dd><app-sla-chip [fechaLimite]="s.fechaLimiteSLA" [activo]="s.slaActivo" /></dd>
               }
               @if (s.fechaCierre) {
                 <dt>Finalizada</dt><dd>{{ aUtc(s.fechaCierre) | date: 'dd/MM/yyyy HH:mm' }}</dd>

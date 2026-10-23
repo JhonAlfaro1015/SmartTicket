@@ -1,52 +1,166 @@
-<div class="page-container">
-  <div class="page-content">
-    <header class="page-header">
+<div class="dash">
+ 
+  <header class="hero">
+    <div class="hero-fila">
       <div>
-        <h1>Dashboard</h1>
-        <p>{{ usuario()?.nombre }} · {{ usuario()?.rol }}</p>
+        <span class="hero-etiqueta">Panel de gestión</span>
+        <h1>Hola, {{ usuario()?.nombre }}</h1>
+        <p class="hero-fecha">
+          {{ fechaHoy }}@if (textoActualizado()) { · actualizado a las {{ textoActualizado() }} }
+        </p>
       </div>
-      <div class="header-actions">
-        <button mat-stroked-button (click)="irASolicitudes()">
+      <div class="hero-acciones">
+        <button mat-stroked-button class="btn-hero" (click)="cargar(true)">
+          <mat-icon>refresh</mat-icon> Actualizar
+        </button>
+        <button mat-flat-button class="btn-hero-solido" (click)="irASolicitudes()">
           <mat-icon>confirmation_number</mat-icon> Ver solicitudes
         </button>
-        <button mat-stroked-button color="warn" (click)="cerrarSesion()">
-          <mat-icon>logout</mat-icon> Cerrar sesión
+        <button mat-stroked-button class="btn-hero" (click)="cerrarSesion()">
+          <mat-icon>logout</mat-icon> Salir
         </button>
       </div>
-    </header>
+    </div>
  
-    @if (cargando()) {
-      <div class="loading-center"><mat-spinner diameter="40"></mat-spinner></div>
-    } @else if (resumen(); as r) {
-      <div class="kpi-row">
-        <mat-card class="kpi-card">
-          <span class="kpi-value">{{ r.totalSolicitudes }}</span>
-          <span class="kpi-label">Total solicitudes</span>
-        </mat-card>
-        <mat-card class="kpi-card">
-          <span class="kpi-value">
-            {{ r.tiempoPromedioAtencionHoras !== null ? (r.tiempoPromedioAtencionHoras | number:'1.0-1') + ' h' : '—' }}
-          </span>
-          <span class="kpi-label">Tiempo promedio de atención</span>
-        </mat-card>
-      </div>
- 
-      <div class="charts-grid">
-        <mat-card class="chart-card">
-          <h3>Solicitudes por categoría</h3>
-          <canvas baseChart [data]="chartCategoriaData()" type="bar" [options]="chartOptions"></canvas>
-        </mat-card>
- 
-        <mat-card class="chart-card">
-          <h3>Solicitudes por prioridad</h3>
-          <canvas baseChart [data]="chartPrioridadData()" type="doughnut" [options]="doughnutOptions"></canvas>
-        </mat-card>
- 
-        <mat-card class="chart-card chart-card--wide">
-          <h3>Solicitudes por estado</h3>
-          <canvas baseChart [data]="chartEstadoData()" type="bar" [options]="chartOptions"></canvas>
-        </mat-card>
+    @if (resumen(); as r) {
+      <div class="alertas">
+        @if (r.vencidas > 0) {
+          <span class="alerta alerta--roja"><mat-icon>alarm</mat-icon>{{ r.vencidas }} con SLA vencido</span>
+        }
+        @if (r.enRiesgo > 0) {
+          <span class="alerta alerta--ambar"><mat-icon>hourglass_top</mat-icon>{{ r.enRiesgo }} en riesgo de vencer</span>
+        }
+        @if (r.sinAsignar > 0) {
+          <span class="alerta alerta--violeta"><mat-icon>person_off</mat-icon>{{ r.sinAsignar }} sin asignar</span>
+        }
+        @if (r.vencidas === 0 && r.enRiesgo === 0 && r.sinAsignar === 0) {
+          <span class="alerta alerta--verde"><mat-icon>check_circle</mat-icon>Todo bajo control</span>
+        }
       </div>
     }
-  </div>
+  </header>
+ 
+  <main class="cuerpo">
+    @if (cargando()) {
+      <div class="tarjeta estado-carga"><mat-spinner diameter="40"></mat-spinner></div>
+    } @else if (error()) {
+      <div class="tarjeta estado-carga">
+        <mat-icon>cloud_off</mat-icon>
+        <p>No fue posible cargar el panel.</p>
+        <button mat-flat-button color="primary" (click)="cargar(true)">Reintentar</button>
+      </div>
+    } @else if (resumen(); as r) {
+ 
+      <section class="kpis">
+        @for (k of kpis(); track k.etiqueta) {
+          <article class="kpi" [class]="'kpi--' + k.tono">
+            <div class="kpi-icono"><mat-icon>{{ k.icono }}</mat-icon></div>
+            <div class="kpi-cuerpo">
+              <span class="kpi-valor">{{ k.valor }}</span>
+              <span class="kpi-etiqueta">{{ k.etiqueta }}</span>
+              @if (k.detalle) {
+                <span class="kpi-detalle" [class]="k.claseDetalle ?? ''">{{ k.detalle }}</span>
+              }
+            </div>
+          </article>
+        }
+      </section>
+ 
+      <section class="rejilla">
+ 
+        <article class="tarjeta span-8">
+          <h2>Actividad de los últimos 14 días</h2>
+          <p class="sub">Solicitudes creadas y finalizadas por día</p>
+          <div class="grafico"><canvas baseChart [data]="datosTendencia()" type="line" [options]="opcionesLinea"></canvas></div>
+        </article>
+ 
+        <article class="tarjeta span-4">
+          <h2>Solicitudes por estado</h2>
+          <p class="sub">Distribución actual del flujo</p>
+          <div class="grafico"><canvas baseChart [data]="datosEstados()" type="doughnut" [options]="opcionesDona"></canvas></div>
+        </article>
+ 
+        <article class="tarjeta span-5">
+          <h2>Carga por agente</h2>
+          <p class="sub">Pendientes y resueltas asignadas a cada uno</p>
+          <div class="agentes">
+            @for (a of cargaAgentes(); track a.usuarioId) {
+              <div class="agente">
+                <span class="avatar">{{ iniciales(a.nombre) }}</span>
+                <div class="agente-datos">
+                  <div class="agente-linea">
+                    <strong>{{ a.nombre }}</strong>
+                    <span>{{ a.pendientes }} pendientes · {{ a.resueltas }} resueltas</span>
+                  </div>
+                  <div class="barra">
+                    <span class="barra-pend" [style.width.%]="a.pctPendientes"></span>
+                    <span class="barra-res" [style.width.%]="a.pctResueltas"></span>
+                  </div>
+                </div>
+                <span class="agente-total">{{ a.total }}</span>
+              </div>
+            } @empty {
+              <p class="vacio">No hay agentes registrados.</p>
+            }
+ 
+            @if (r.sinAsignar > 0) {
+              <div class="agente agente--sin">
+                <span class="avatar avatar--sin"><mat-icon>person_off</mat-icon></span>
+                <div class="agente-datos">
+                  <div class="agente-linea"><strong>Sin asignar</strong><span>{{ r.sinAsignar }} pendientes</span></div>
+                  <div class="barra"><span class="barra-sin" [style.width.%]="sinAsignarPct()"></span></div>
+                </div>
+                <span class="agente-total">{{ r.sinAsignar }}</span>
+              </div>
+            }
+          </div>
+          <div class="leyenda">
+            <span><i class="punto punto--pend"></i>Pendientes</span>
+            <span><i class="punto punto--res"></i>Resueltas</span>
+          </div>
+        </article>
+ 
+        <article class="tarjeta span-7">
+          <h2>Solicitudes más urgentes</h2>
+          <p class="sub">Pendientes ordenadas por prioridad y vencimiento</p>
+          <div class="tabla-scroll">
+            <table class="tabla">
+              <thead>
+                <tr><th>#</th><th>Solicitud</th><th>Prioridad</th><th>Estado</th><th>Atiende</th><th>SLA</th></tr>
+              </thead>
+              <tbody>
+                @for (s of r.urgentes; track s.solicitudId) {
+                  <tr (click)="abrir(s.solicitudId)">
+                    <td class="id">#{{ s.solicitudId }}</td>
+                    <td><strong>{{ s.categoriaNombre }}</strong><small>{{ s.clienteNombre }}</small></td>
+                    <td><app-prioridad-badge [nombre]="s.prioridadNombre" /></td>
+                    <td><app-estado-badge [nombre]="s.estadoNombre" /></td>
+                    <td>
+                      @if (s.agenteNombre) { {{ s.agenteNombre }} } @else { <span class="sin">Sin asignar</span> }
+                    </td>
+                    <td><app-sla-chip [fechaLimite]="s.fechaLimiteSLA" [activo]="s.slaActivo" /></td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="6" class="vacio">No hay solicitudes pendientes. Todo al día.</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </article>
+ 
+        <article class="tarjeta span-6">
+          <h2>Solicitudes por prioridad</h2>
+          <p class="sub">De la más a la menos urgente</p>
+          <div class="grafico grafico--bajo"><canvas baseChart [data]="datosPrioridades()" type="bar" [options]="opcionesBarraHorizontal"></canvas></div>
+        </article>
+ 
+        <article class="tarjeta span-6">
+          <h2>Solicitudes por categoría</h2>
+          <p class="sub">Qué tipo de problema es el más frecuente</p>
+          <div class="grafico grafico--bajo"><canvas baseChart [data]="datosCategorias()" type="bar" [options]="opcionesBarraHorizontal"></canvas></div>
+        </article>
+ 
+      </section>
+    }
+  </main>
 </div>

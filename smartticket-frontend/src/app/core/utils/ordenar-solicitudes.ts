@@ -12,7 +12,7 @@ export function ordenarSolicitudes(lista: readonly SolicitudDetalle[], criterio:
  
   // Urgencia: prioridad (1 = más urgente), luego el SLA que vence primero, luego la más reciente
   const vence = (s: SolicitudDetalle) =>
-    s.fechaLimiteSLA ? marcaTiempo(s.fechaLimiteSLA) : Number.MAX_SAFE_INTEGER;
+    s.slaActivo && s.fechaLimiteSLA ? marcaTiempo(s.fechaLimiteSLA) : Number.MAX_SAFE_INTEGER;
  
   return copia.sort((a, b) =>
     a.prioridadNivel - b.prioridadNivel || vence(a) - vence(b) || masReciente(a, b));

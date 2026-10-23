@@ -28,7 +28,7 @@
       }
     </section>
  
-    <mat-card class="filtros">
+    <div class="filtros">
       <mat-form-field appearance="outline" subscriptSizing="dynamic" class="busqueda">
         <mat-label>Buscar</mat-label>
         <mat-icon matPrefix>search</mat-icon>
@@ -57,7 +57,7 @@
       <mat-slide-toggle [checked]="mostrarFinalizadas()" (change)="mostrarFinalizadas.set($event.checked)">
         Mostrar finalizadas
       </mat-slide-toggle>
-    </mat-card>
+    </div>
  
     @if (cargando()) {
       <div class="cargando"><mat-spinner diameter="36"></mat-spinner></div>

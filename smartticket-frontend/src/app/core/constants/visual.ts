@@ -31,3 +31,26 @@ export function colorScore(valor: number): string {
   if (valor >= 30) return 'var(--pr-media)';
   return 'var(--pr-baja)';
 }
+
+const HEX_ESTADO: Record<string, string> = {
+  'Nuevo': '#2563eb',
+  'En Proceso': '#f59e0b',
+  'Resuelto': '#16a34a',
+  'Cerrado': '#64748b',
+  'Cancelado': '#dc2626'
+};
+ 
+export function colorHexEstado(nombre: string): string {
+  return HEX_ESTADO[nombre] ?? '#6366f1';
+}
+ 
+const HEX_PRIORIDAD: Record<string, string> = {
+  CRITICA: '#b91c1c',
+  ALTA: '#ea580c',
+  MEDIA: '#ca8a04',
+  BAJA: '#16a34a'
+};
+ 
+export function colorHexPrioridad(nombre: string): string {
+  return HEX_PRIORIDAD[nombre] ?? '#64748b';
+}

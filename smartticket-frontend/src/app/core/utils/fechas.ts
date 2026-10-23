@@ -35,3 +35,10 @@ export function calcularSla(fechaLimite: string | null, ahora = Date.now()): Est
     texto: 'Vence en ' + formatearDuracion(diff)
   };
 }
+
+export function formatearHoras(horas: number | null): string {
+  if (horas === null || horas === undefined) return '—';
+  if (horas < 1) return Math.max(1, Math.round(horas * 60)) + ' min';
+  if (horas < 48) return (Math.round(horas * 10) / 10).toString().replace('.', ',') + ' h';
+  return (Math.round((horas / 24) * 10) / 10).toString().replace('.', ',') + ' d';
+}

@@ -23,10 +23,9 @@ import { calcularSla, marcaTiempo } from '../../core/utils/fechas';
 })
 export class SlaChip {
   readonly fechaLimite = input<string | null>(null);
-  readonly esFinal = input(false);
+  readonly activo = input(true);
  
-  // Una solicitud finalizada ya no corre contra el reloj
-  readonly sla = computed(() => (this.esFinal() ? null : calcularSla(this.fechaLimite())));
+  readonly sla = computed(() => (this.activo() ? calcularSla(this.fechaLimite()) : null));
  
   readonly titulo = computed(() => {
     const f = this.fechaLimite();

@@ -58,6 +58,7 @@ export interface SolicitudDetalle {
   estadosSiguientes: EstadoSiguiente[];   // los llena el servidor según rol y asignación
   puedeComentar: boolean;
   puedeAsignar: boolean;
+  slaActivo: boolean;
 }
  
 export interface Comentario {

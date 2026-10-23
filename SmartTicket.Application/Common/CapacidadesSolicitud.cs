@@ -19,5 +19,7 @@ public static class CapacidadesSolicitud
             PermisosSolicitud.PuedeCambiarEstado(rol, usuarioId, solicitud.UsuarioAsignadoId)
                 ? destinosDelEstadoActual.ToList()
                 : [];
+
+        solicitud.SlaActivo = EstadosSistema.Pendientes.Contains(solicitud.EstadoNombre);
     }
 }

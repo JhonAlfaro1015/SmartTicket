@@ -59,7 +59,7 @@ import { SlaChip } from '../../../shared/components/sla-chip';
           } @else {
             <span class="dato sin-asignar"><mat-icon>person_off</mat-icon>Sin asignar</span>
           }
-          <app-sla-chip [fechaLimite]="s().fechaLimiteSLA" [esFinal]="s().estadoEsFinal" />
+           <app-sla-chip [fechaLimite]="s().fechaLimiteSLA" [activo]="s().slaActivo" />
         </div>
  
         <footer class="pie">
@@ -79,13 +79,13 @@ import { SlaChip } from '../../../shared/components/sla-chip';
       </div>
     </article>`,
   styles: [`
-    :host { display: block; }
-    .card { display: flex; background: #fff; border-radius: 14px; overflow: hidden;
+    :host { display: block; height: 100%; }
+    .card { height: 100%; display: flex; background: #fff; border-radius: 14px; overflow: hidden;
             box-shadow: 0 1px 3px rgba(15,23,42,.08), 0 4px 14px rgba(15,23,42,.05);
             transition: box-shadow .15s, transform .15s; }
     .card:hover { box-shadow: 0 2px 6px rgba(15,23,42,.12), 0 8px 22px rgba(15,23,42,.08); transform: translateY(-1px); }
     .barra { flex: 0 0 6px; background: var(--pr-color); }
-    .cuerpo { flex: 1; padding: 16px 20px 14px; min-width: 0; }
+    .cuerpo { flex: 1; padding: 16px 20px 14px; min-width: 0; display: flex; flex-direction: column; }
  
     .cabecera { display: flex; justify-content: space-between; gap: 16px; cursor: pointer; outline: none; }
     .cabecera:focus-visible { box-shadow: 0 0 0 2px #93c5fd; border-radius: 8px; }
@@ -103,7 +103,7 @@ import { SlaChip } from '../../../shared/components/sla-chip';
     .texto { margin: 12px 0; font-size: 14.5px; line-height: 1.45; color: #334155;
              display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
  
-    .info { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 18px; font-size: 13px; color: #475569; }
+    .info { margin-bottom: 14px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px 18px; font-size: 13px; color: #475569; }
     .dato { display: inline-flex; align-items: center; gap: 5px; }
     .dato mat-icon { font-size: 17px; width: 17px; height: 17px; color: #94a3b8; }
     .avatar { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%;
@@ -111,7 +111,7 @@ import { SlaChip } from '../../../shared/components/sla-chip';
     .sin-asignar { color: #94a3b8; font-style: italic; }
  
     .pie { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
-           margin-top: 14px; padding-top: 12px; border-top: 1px solid #eef2f6; }
+           margin-top: auto; padding-top: 12px; border-top: 1px solid #eef2f6; }
     .acciones { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
  
     /* Finalizada (Cerrado / Cancelado): se ve apagada para distinguirla de lo pendiente */

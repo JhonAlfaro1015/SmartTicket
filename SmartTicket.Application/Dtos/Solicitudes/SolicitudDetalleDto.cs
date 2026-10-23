@@ -44,4 +44,5 @@ public class SolicitudDetalleDto
     public List<EstadoSiguienteDto> EstadosSiguientes { get; set; } = new();
     public bool PuedeComentar { get; set; }
     public bool PuedeAsignar { get; set; }
+    public bool SlaActivo { get; set; }
 }
